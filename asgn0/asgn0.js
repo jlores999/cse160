@@ -21,8 +21,9 @@ function main() {
   var v = new Vector3([1,2,0]);
   drawVector(v,"red");
   //Draw a blue rectangle
-  ctx.fillStyle = 'rgba(0, 0, 255, 1.0)'; // Set color to blue
-  ctx.fillRect(120, 10, 150, 150);        // Fill a rectangle with the color
+ // ctx.fillStyle = 'rgba(0, 0, 255, 1.0)'; // Set color to blue
+  //ctx.fillRect(120, 10, 150, 150);        // Fill a rectangle with the color
 }
+
 
 
