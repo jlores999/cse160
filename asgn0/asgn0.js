@@ -5,6 +5,7 @@ let canvas;
 function drawVector(v, color) {
   ctx.beginPath();
   ctx.moveTo(0,0);
+  ctx.translate(canvas.width/2, canvas.height/2);
   ctx.lineTo(v.elements[0]*20, v.elements[1]*20);
   ctx.strokeStyle = color;
   ctx.stroke();
@@ -35,6 +36,7 @@ function main() {
   //var v = new Vector3([2.5,2.5,0]);
   //drawVector(v,"red");
 }
+
 
 
 
