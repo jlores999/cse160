@@ -1,6 +1,6 @@
 // DrawTriangle.js (c) 2012 matsuda
 let ctx;
-let canvas
+let canvas;
 
 function drawVector(v, color) {
   ctx.beginPath();
@@ -35,6 +35,7 @@ function main() {
   //var v = new Vector3([2.5,2.5,0]);
   //drawVector(v,"red");
 }
+
 
 
 
