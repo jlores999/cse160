@@ -38,8 +38,8 @@ function handleDrawOperationEvent() {
     drawVector(v4, "green");
   }
   else if (val === "/"){
-    var v3 = new Vector3([numX1 * s, numY1 * s, 0]);
-    var v4 = new Vector3([numX2 * s, numY2 * s, 0]);
+    var v3 = new Vector3([numX1 / s, numY1 / s, 0]);
+    var v4 = new Vector3([numX2 / s, numY2 / s, 0]);
     drawVector(v3, "green");
     drawVector(v4, "green");
   }
