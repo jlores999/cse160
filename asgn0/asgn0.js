@@ -2,7 +2,7 @@
 let ctx;
 let canvas;
 
-f/*unction handleDrawOperationEvent() {
+function handleDrawOperationEvent() {
   ctx.save(); 
   ctx.setTransform(1, 0, 0, 1, 0, 0); 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -11,6 +11,7 @@ f/*unction handleDrawOperationEvent() {
   const y1 = document.getElementById("y1").value;
   const x2 = document.getElementById("x2").value;
   const y2 = document.getElementById("y2").value;
+  const s = Number(document.getElementById("scalar").value);
   var numX1 = Number(x1);
   var numY1 = Number(y1);
   var numX2 = Number(x2);
@@ -31,12 +32,25 @@ f/*unction handleDrawOperationEvent() {
     drawVector(v3, "green");
   }
   else if (val === "*"){
-    var v3 = new Vector3([numX1 * ])
+    var v3 = new Vector3([numX1 * s, numY1 * s, 0]);
+    var v4 = new Vector3([numX2 * s, numY2 * s, 0]);
+    drawVector(v3, "green");
+    drawVector(v4, "green");
+  }
+  else if (val === "/"){
+    var v3 = new Vector3([numX1 * s, numY1 * s, 0]);
+    var v4 = new Vector3([numX2 * s, numY2 * s, 0]);
+    drawVector(v3, "green");
+    drawVector(v4, "green");
+  }
+  else {
+    alert("Enter a valid input");
+    return;
   }
 
   drawVector(v1,"red");
   drawVector(v2, "blue");
-}*/
+}
 function drawVector(v, color) {
   ctx.beginPath();
   ctx.moveTo(0,0);
