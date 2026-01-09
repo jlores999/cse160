@@ -15,16 +15,23 @@ function handleDraw() {
   ctx.setTransform(1, 0, 0, 1, 0, 0); // reset to default
   ctx.clearRect(0, 0, canvas.width, canvas.height); // clears entire canvas
   ctx.restore(); // restore the translate/scale transform
-  const x = document.getElementById("x").value;
-  const y = document.getElementById("y").value;
-  var numX = Number(x);
-  var numY = Number(y);
-  if (isNaN(numX) || isNaN(numY)){
+  const x1 = document.getElementById("x1").value;
+  const y1 = document.getElementById("y1").value;
+  const x2 = document.getElementById("x2").value;
+  const y2 = document.getElementById("y2").value;
+  var numX1 = Number(x1);
+  var numY1 = Number(y1);
+  var numX2 = Number(x2);
+  var numY2 = Number(y2);
+  if (isNaN(numX1) || isNaN(numY1) || isNaN(numX2) || isNaN(numY2)){
     alert("Enter a valid input");
     return;
   }
-  var v = new Vector3([numX, numY, 0]);
-  drawVector(v,"red");
+  var v1 = new Vector3([numX1, numY1, 0]);
+  var v2 = new Vector3([numX2, numY2, 0]);
+
+  drawVector(v1,"red");
+  drawVector(v2, "blue");
 }
 function main() {  
   // Retrieve <canvas> element
