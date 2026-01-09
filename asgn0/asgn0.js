@@ -2,6 +2,14 @@
 let ctx;
 let canvas;
 
+function angleBetween(v1, v2){
+  let d = Vector3.dot(v1, v2);2
+  let m1 = v1.magnitude();
+  let m2 = v2.magnitude();
+  let ang = Math.acos( d / (m1 * m2));
+  let angleDeg = ang * (180 / Math.PI);
+  return angleDeg;
+}
 function handleDrawOperationEvent() {
   ctx.save(); 
   ctx.setTransform(1, 0, 0, 1, 0, 0); 
@@ -46,6 +54,9 @@ function handleDrawOperationEvent() {
   else if (val === "norm"){
     drawVector(v1.normalize(), "green");
     drawVector(v2.normalize(), "green");
+  }
+  else if (val === "angle"){
+    console.log(angleBetween(v1,v2));
   }
   else {
     alert("Enter a valid input");
