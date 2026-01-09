@@ -10,7 +10,11 @@ function drawVector(v, color) {
   ctx.stroke();
 }
 function handleDraw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Reset transform so clearing works correctly
+  ctx.save(); // save current transform
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset to default
+  ctx.clearRect(0, 0, canvas.width, canvas.height); // clears entire canvas
+  ctx.restore(); // restore the translate/scale transform
   const x = document.getElementById("x").value;
   const y = document.getElementById("y").value;
   var numX = Number(x);
