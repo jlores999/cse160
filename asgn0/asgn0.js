@@ -24,7 +24,7 @@ function handleDrawOperationEvent() {
   var v2 = new Vector3([numX2, numY2, 0]);
   var val = document.getElementById("op-select").value;
   if (val === "+"){
-    var v3 = new Vector3([numX1 + numX2, numY1 + numY2, 0]);
+    var v3 = new Vector3(add(v1,v2));
     drawVector(v3, "green");
   } 
   else if (val === "-"){
