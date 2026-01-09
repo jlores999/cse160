@@ -139,7 +139,7 @@ class Vector3 {
     normalize() {
         // Insert your code here.
         // This function should change this vector (this.elements) and not create a new vector.
-        let m = magnitude();
+        let m = this.magnitude();
         this.elements[0] /= m;
         this.elements[1] /= m;
         this.elements[2] /= m;

@@ -22,34 +22,35 @@ function handleDrawOperationEvent() {
   }
   var v1 = new Vector3([numX1, numY1, 0]);
   var v2 = new Vector3([numX2, numY2, 0]);
+  drawVector(v1,"red");
+  drawVector(v2, "blue");
   var val = document.getElementById("op-select").value;
   if (val === "+"){
-    var v3 = new Vector3(v1.add(v2));
-    drawVector(v3, "green");
+    drawVector(v1.add(v2), "green");
   } 
   else if (val === "-"){
-    var v3 = new Vector3([numX1 + numX2, numY1 + numY2, 0]);
-    drawVector(v3, "green");
+    drawVector(v1.sub(v2), "green");
   }
   else if (val === "*"){
-    var v3 = new Vector3([numX1 * s, numY1 * s, 0]);
-    var v4 = new Vector3([numX2 * s, numY2 * s, 0]);
-    drawVector(v3, "green");
-    drawVector(v4, "green");
+    drawVector(v1.mul(s), "green");
+    drawVector(v2.mul(s), "green");
   }
   else if (val === "/"){
-    var v3 = new Vector3([numX1 / s, numY1 / s, 0]);
-    var v4 = new Vector3([numX2 / s, numY2 / s, 0]);
-    drawVector(v3, "green");
-    drawVector(v4, "green");
+    drawVector(v1.div(s), "green");
+    drawVector(v2.div(s), "green");
+  }
+  else if (val === "mag"){
+    console.log(v1.magnitude());
+    console.log(v2.magnitude());
+  }
+  else if (val === "norm"){
+    drawVector(v1.normalize(), "green");
+    drawVector(v2.normalize(), "green");
   }
   else {
     alert("Enter a valid input");
     return;
   }
-
-  drawVector(v1,"red");
-  drawVector(v2, "blue");
 }
 function drawVector(v, color) {
   ctx.beginPath();
