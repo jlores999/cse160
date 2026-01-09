@@ -1,5 +1,6 @@
 // DrawTriangle.js (c) 2012 matsuda
 let ctx;
+let canvas
 
 function drawVector(v, color) {
   ctx.beginPath();
@@ -14,7 +15,7 @@ function handleDraw() {
   const y = document.getElementById("y").value;
   var numX = Number(x);
   var numY = Number(y);
-  if (isNaN(numX) || isNaN(numY){
+  if (isNaN(numX) || isNaN(numY)){
     alert("Enter a valid input");
     return;
   }
@@ -23,7 +24,7 @@ function handleDraw() {
 }
 function main() {  
   // Retrieve <canvas> element
-  var canvas = document.getElementById('example');  
+  canvas = document.getElementById('example');  
   if (!canvas) { 
     console.log('Failed to retrieve the <canvas> element');
     return false; 
@@ -34,6 +35,7 @@ function main() {
   //var v = new Vector3([2.5,2.5,0]);
   //drawVector(v,"red");
 }
+
 
 
 
