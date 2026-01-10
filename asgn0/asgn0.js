@@ -2,6 +2,11 @@
 let ctx;
 let canvas;
 
+function areaTriangle(v1, v2){
+  let m = (Vector3.cross(v1,v2)).magnitude();
+  let ar = m/2;
+  return ar;
+}
 function angleBetween(v1, v2){
   let d = Vector3.dot(v1, v2);2
   let m1 = v1.magnitude();
@@ -56,7 +61,10 @@ function handleDrawOperationEvent() {
     drawVector(v2.normalize(), "green");
   }
   else if (val === "angle"){
-    console.log(angleBetween(v1,v2));
+    console.log(angleBetween(v1, v2));
+  }
+  else if (val === "area"){
+    console.log(areaTriangle(v1, v2));
   }
   else {
     alert("Enter a valid input");
