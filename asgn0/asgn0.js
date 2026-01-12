@@ -1,4 +1,3 @@
-// DrawTriangle.js (c) 2012 matsuda
 let ctx;
 let canvas;
 
@@ -110,11 +109,10 @@ function main() {
     return false; 
   } 
 
-  // Get the rendering context for 2DCG
   ctx = canvas.getContext('2d');
   ctx.translate(canvas.width/2, canvas.height/2);
-  //var v = new Vector3([2.5,2.5,0]);
-  //drawVector(v,"red");
+  ctx.scale(1, -1);
+
 }
 
 
