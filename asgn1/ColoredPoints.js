@@ -15,6 +15,10 @@ var FSHADER_SOURCE =`
   void main() {
     gl_FragColor = u_FragColor;
   }`
+
+ const POINT = 0;
+ const TRIANGLE = 1;
+
  let canvas;
  let gl;
  let a_Position;
@@ -22,7 +26,7 @@ var FSHADER_SOURCE =`
  let u_Size;
  let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
  let g_selectedSize = 5.0;
-
+ let g_selectedType = POINT;
  function setUpWebGL(){
     // Retrieve <canvas> element
   canvas = document.getElementById('webgl');
@@ -70,6 +74,10 @@ function addActionsForHtmlUI(){
   document.getElementById("green").onclick = function () { g_selectedColor = [0.0, 1.0, 0.0, 1.0]; };
   document.getElementById("red").onclick = function () { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; };
   document.getElementById("clear").onclick = function() {g_shapesList=[]; renderAllShapes()}; //not an explicit action to clear the state, rather more of a state
+
+  document.getElementById("pointButton").onclick = function() {g_selectedType=POINT};
+  document.getElementById("triButton").onclick = function() {g_selectedType=TRIANGLE};
+
   //ColorSlider Events
   document.getElementById("redSlide").addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100;});
   document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
@@ -101,7 +109,13 @@ function main() {
 var g_shapesList = [];
 function click(ev) {
   let [x, y] = convertCoordinatesEventToGL(ev);
-  let point = new Triangle();
+  let point;
+  if (g_selectedType == POINT){
+    point = new Point();
+  }
+  else if (g_selectedType == TRIANGLE){
+    point = new Triangle();
+  }
   point.position =[x,y];
   point.color=g_selectedColor.slice();
   point.size=g_selectedSize;
