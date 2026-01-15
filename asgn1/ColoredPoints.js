@@ -28,6 +28,7 @@ var FSHADER_SOURCE =`
  let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
  let g_selectedSize = 5.0;
  let g_selectedType = POINT;
+ let g_selectedSeg = 10;
  function setUpWebGL(){
     // Retrieve <canvas> element
   canvas = document.getElementById('webgl');
@@ -87,7 +88,8 @@ function addActionsForHtmlUI(){
   document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
   //Size Slider Events
   document.getElementById("sizeSlide").addEventListener('mouseup', function() { g_selectedSize = this.value;});
-
+  //Segment Slider Events
+  document.getElementById("segSlide").addEventListener('mouseup', function() { g_selectedSeg = parseInt(this.value, 10);});
 }
 
 function main() {
@@ -121,6 +123,7 @@ function click(ev) {
   }
   else if (g_selectedType == CIRCLE){
     point = new Circle();
+    point.segments = g_selectedSeg;
   }
   point.position =[x,y];
   point.color=g_selectedColor.slice();

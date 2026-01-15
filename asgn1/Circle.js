@@ -12,7 +12,7 @@ class Circle{
     var rgba = this.color;
     var size = this.size;
 
-    gl.uniform4(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+    gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
 
     var d = this.size/200.0;
 
@@ -21,8 +21,8 @@ class Circle{
       let centerPt = [xy[0], xy[1]];
       let angle1=angle;
       let angle2=angle+angleStep;
-      let vec1 = [Math.cos(angle1*Math.PI/180)*d, Math.sin(angle1*Math.PI/180)*2];
-      let vec2 = [Math.cos(angle2*Math.PI/180)*d, Math.sin(angle2*Math.PI/180)*2];
+      let vec1 = [Math.cos(angle1*Math.PI/180)*d, Math.sin(angle1*Math.PI/180)*d];
+      let vec2 = [Math.cos(angle2*Math.PI/180)*d, Math.sin(angle2*Math.PI/180)*d];
       let pt1 = [centerPt[0]+vec1[0], centerPt[1]+vec1[1]];
       let pt2 = [centerPt[0]+vec2[0], centerPt[1]+vec2[1]];
 
