@@ -18,6 +18,7 @@ var FSHADER_SOURCE =`
 
  const POINT = 0;
  const TRIANGLE = 1;
+ const CIRCLE = 2;
 
  let canvas;
  let gl;
@@ -77,6 +78,8 @@ function addActionsForHtmlUI(){
 
   document.getElementById("pointButton").onclick = function() {g_selectedType=POINT};
   document.getElementById("triButton").onclick = function() {g_selectedType=TRIANGLE};
+  document.getElementById("cirButton").onclick = function() {g_selectedType=CIRCLE};
+
 
   //ColorSlider Events
   document.getElementById("redSlide").addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100;});
@@ -115,6 +118,9 @@ function click(ev) {
   }
   else if (g_selectedType == TRIANGLE){
     point = new Triangle();
+  }
+  else if (g_selectedType == CIRCLE){
+    point = new Circle();
   }
   point.position =[x,y];
   point.color=g_selectedColor.slice();
