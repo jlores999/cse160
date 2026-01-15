@@ -101,7 +101,7 @@ function main() {
 var g_shapesList = [];
 function click(ev) {
   let [x, y] = convertCoordinatesEventToGL(ev);
-  let point = new Point();
+  let point = new Triangle();
   point.position =[x,y];
   point.color=g_selectedColor.slice();
   point.size=g_selectedSize;
