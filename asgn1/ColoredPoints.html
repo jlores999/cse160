@@ -10,14 +10,25 @@
     Please use a browser that supports "canvas"
     </canvas>
     <p>
-    <button type="button" id="green">Green</button>
+    <img src="asgn1.png" alt="Description" style="width:200px; height:auto;">
     <button type="button" id="red">Red</button>
+    <button type="button" id="orange">Orange</button>
+    <button type="button" id="yellow">Yellow</button>
+    <button type="button" id="green">Green</button>
+    <button type="button" id="blue">Blue</button>
+    <button type="button" id="purple">Purple</button>
+
     <button type="button" id="clear">Clear Canvas</button>
+    <button type="button" id="undo">Undo</button>
+
     <p>
 
     <button type="button" id="pointButton">Point</button>
-    <button type="button" id="triButton">Triangle</button>
+    <button type="button" id="triButton">Right Triangle</button>
     <button type="button" id="cirButton">Circle</button>
+    <button type="button" id="eqTriButton">Equilateral Triangle</button>
+
+
 
     <p>
     Red <input type="range" min="0" max="100" value="100" class="slider" id="redSlide">
@@ -27,7 +38,11 @@
     Blue <input type="range" min="0" max="100" value="100" class="slider" id="blueSlide">
     <p>
     Shape Size <input type="range" min="5" max="40" value="10" class="slider" id="sizeSlide">
-    Circle Segment Count <input type="range" min="10" max="20" step ="1" value="10" class="slider" id="segSlide">
+    Circle Segment Count <input type="range" min="1" max="100" step ="1" value="10" class="slider" id="segSlide">
+    <p>
+    <button type="button" id="drawPic">Draw Picture</button>
+    <button type="button" id="changeCan">Change Canvas Color</button>
+
    
 
 
@@ -37,6 +52,7 @@
     <script src="Points.js"></script>
     <script src="Triangle.js"></script>
     <script src="Circle.js"></script>
+    <script src="Eq_Tri.js"></script>
     <script src="ColoredPoints.js"></script>
   </body>
 </html>

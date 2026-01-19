@@ -19,6 +19,7 @@ var FSHADER_SOURCE =`
  const POINT = 0;
  const TRIANGLE = 1;
  const CIRCLE = 2;
+ const EQ_TRI = 3;
 
  let canvas;
  let gl;
@@ -73,13 +74,22 @@ var FSHADER_SOURCE =`
 
 function addActionsForHtmlUI(){
   //Button events
-  document.getElementById("green").onclick = function () { g_selectedColor = [0.0, 1.0, 0.0, 1.0]; };
-  document.getElementById("red").onclick = function () { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; };
-  document.getElementById("clear").onclick = function() {g_shapesList=[]; renderAllShapes()}; //not an explicit action to clear the state, rather more of a state
+  document.getElementById("red").onclick = function () { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; updateColorSliders();};
+  document.getElementById("orange").onclick = function () { g_selectedColor = [1.0, 0.5, 0.0, 1.0]; updateColorSliders();};
+  document.getElementById("yellow").onclick = function () { g_selectedColor = [1.0, 1.0, 0.0, 1.0]; updateColorSliders();};
+  document.getElementById("green").onclick = function () { g_selectedColor = [0.0, 1.0, 0.0, 1.0]; updateColorSliders(); };  
+  document.getElementById("blue").onclick = function () { g_selectedColor = [0.0, 0.0, 1.0, 1.0]; updateColorSliders();};
+  document.getElementById("purple").onclick = function () { g_selectedColor = [0.5, 0.0, 0.5, 1.0]; updateColorSliders();};
 
+  document.getElementById("clear").onclick = function() {g_shapesList=[]; renderAllShapes()}; //not an explicit action to clear the state, rather more of a state
+  document.getElementById("undo").onclick = function() {undo()};
   document.getElementById("pointButton").onclick = function() {g_selectedType=POINT};
   document.getElementById("triButton").onclick = function() {g_selectedType=TRIANGLE};
   document.getElementById("cirButton").onclick = function() {g_selectedType=CIRCLE};
+  document.getElementById("eqTriButton").onclick = function() {g_selectedType=EQ_TRI};
+
+  document.getElementById("drawPic").onclick = function() {drawPicture()};
+  document.getElementById("changeCan").onclick = function() {changeCanvasColor()};
 
 
   //ColorSlider Events
@@ -125,6 +135,9 @@ function click(ev) {
     point = new Circle();
     point.segments = g_selectedSeg;
   }
+  else if (g_selectedType = EQ_TRI){
+    point = new Eq_Triangle();
+  }
   point.position =[x,y];
   point.color=g_selectedColor.slice();
   point.size=g_selectedSize;
@@ -154,4 +167,93 @@ function renderAllShapes(){
     g_shapesList[i].render();
   }
 
+}
+function drawPicture(){
+  //background set up
+  gl.clearColor(.53, .81, .92, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+  //triangle aura
+  gl.uniform4f(u_FragColor, .8, 0.2, 1.0, 1.0);
+  drawTriangle([-0.1, 0.5, 0.1, 0.5, 0.0, 0.7]);
+  drawTriangle([-0.1, -0.25, 0.1, -0.25, -0.1, 0.5]);
+  drawTriangle([0.1, -0.25, 0.1, 0.5, -0.1, 0.5]);
+  drawTriangle([-.1, .1,   -.6, .25,  -.1, .25]);
+  drawTriangle([.1, .1,   .6, .25,  .1, .25]);
+
+  drawTriangle([-.25, .25,   -.7, .35,  -.25, .35]);
+  drawTriangle([.25, .25,   .7, .35,  .25, .35]);
+  //Blade
+  //gl.uniform4f(u_FragColor, .5, .5, .5, 1.0);
+  gl.uniform4f(u_FragColor, 0.0, 0.6, 0.9, 1.0);
+  drawTriangle([-0.05, -0.2, 0.05, -0.2, -0.05, 0.5]);
+  drawTriangle([0.05, -0.2, 0.05, 0.5, -0.05, 0.5]);
+  drawTriangle([-0.05, 0.5, 0.05, 0.5, 0.0, 0.6]);
+  //J hilt
+//gl.uniform4f(u_FragColor, .65, 0.2, 0.2, 1.0);
+  drawTriangle([0.0,-0.07,      -0.05, -0.25, -0.05, -0.07]);
+  drawTriangle([0.0, -0.07,     0, -0.25,   -0.05, -0.25]);
+  drawTriangle([-0.05, -0.25,     -0.2, -.25,  -.05, -.22]);
+  drawTriangle([-0.2, -.25,   -.2, -.22,  -.05, -.22]);
+  drawTriangle([-.2, -.22,  -.2, -.15,   -.15, -.22]);
+  drawTriangle([ -0.15, -0.15,  -0.2, -0.15,  -0.15, -0.22 ]);
+  //L Hilt
+  drawTriangle([ 0.0, -0.07,   0.05, -0.25,   0.05, -0.07 ]);
+  drawTriangle([ 0.0, -0.07,   0.0,  -0.25,   0.05, -0.25 ]);
+  drawTriangle([ 0.05, -0.25,   0.2, -0.25,   0.05, -0.22 ]);
+  drawTriangle([ 0.2,  -0.25,   0.2, -0.22,   0.05, -0.22 ]);
+  //Broken piece of L hilt
+  drawTriangle([0.15, -0.45, 0.3, -0.45, 0.15, -0.42]);
+  drawTriangle([0.3, -0.45, 0.3, -0.42, 0.15, -0.42]);
+  //line for initials
+  gl.uniform4f(u_FragColor, 0.0, 0.0, 0.0, 1.0);
+  drawTriangle([-0.005, -0.25, 0.005, -0.25, -0.005, 0.55]);
+  drawTriangle([0.005, -0.25, 0.005, 0.55, -0.005, 0.55]);
+
+  //sword grip
+  gl.uniform4f(u_FragColor, .25, .25, .25, 1.0); 
+  drawTriangle([-0.05, -0.25, -0.05, -0.45, 0.05, -0.25]);
+  drawTriangle([0.05, -0.25, -0.05, -0.45, 0.05, -0.45]);
+  //bottom
+  gl.uniform4f(u_FragColor, .1, .1, .1, 1.0);
+  drawTriangle([-0.4, -0.45, 0.4, -0.45, -0.4, -1.0]);
+  drawTriangle([0.4, -0.45, 0.4, -1.0, -0.4, -1.0]);
+  //hill
+  gl.uniform4f(u_FragColor, .0, 1.0, .0, 1.0);
+  drawTriangle([-2, -0.45, -0.05, -0.45, -2, -5]);
+  drawTriangle([1, -0.45, 0.05, -0.45, 2, -5]);
+  //left spikes
+  gl.uniform4f(u_FragColor, .6, .4, .3, 1.0);  
+  drawTriangle([-0.5, -0.25, -0.55, -0.45, -0.45, -0.25]);
+  drawTriangle([-0.45, -0.25, -0.55, -0.45, -0.45, -0.45]);
+  drawTriangle([-.5, -.25,   -.45, -.25,    -.45, 0.0]);
+
+  drawTriangle([-0.7, -0.25, -0.75, -0.45, -0.65, -0.25]);
+  drawTriangle([-0.65, -0.25, -0.75, -0.45, -0.65, -0.45]);
+  drawTriangle([-.7, -.25,   -.65, -.25,    -.65, 0.2]);
+
+  //right spikes
+  drawTriangle([0.5, -0.25, 0.55, -0.45, 0.45, -0.25]);
+  drawTriangle([0.45, -0.25, 0.55, -0.45, 0.45, -0.45]);
+  drawTriangle([.5, -.25,   .45, -.25,    .45, 0.0]);
+
+  drawTriangle([0.7, -0.25, 0.75, -0.45, 0.65, -0.25]);
+  drawTriangle([0.65, -0.25, 0.75, -0.45, 0.65, -0.45]);
+  drawTriangle([.7, -.25,   .65, -.25,    .65, 0.2]);
+}
+function changeCanvasColor(){
+  gl.clearColor(g_selectedColor[0], g_selectedColor[1], g_selectedColor[2], 1.0);
+
+  // Clear <canvas>
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  renderAllShapes();
+}
+function updateColorSliders() {
+  document.getElementById("redSlide").value   = g_selectedColor[0] * 100;
+  document.getElementById("greenSlide").value = g_selectedColor[1] * 100;
+  document.getElementById("blueSlide").value  = g_selectedColor[2] * 100;
+}
+function undo(){
+  g_shapesList.pop();
+  renderAllShapes();
 }
