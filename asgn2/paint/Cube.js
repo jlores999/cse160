@@ -5,7 +5,7 @@ class Cube{
     //this.position = [0.0, 0.0, 0.0];
     //this.size = 5.0;
     //this.segments = 10;
-    //this.matrix = new Matrix4();
+    this.matrix = new Matrix4();
   }
 
   render(){
@@ -14,6 +14,7 @@ class Cube{
     //var size = this.size;
 
     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+    gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
 
     /*var d = this.size/200.0;
 

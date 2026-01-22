@@ -2,10 +2,9 @@
 // Vertex shader program
 var VSHADER_SOURCE =`
   attribute vec4 a_Position;
-  uniform float u_Size;
+  uniform mat4 u_ModelMatrix;
   void main() {
-    gl_Position = a_Position;
-    gl_PointSize = u_Size;
+    gl_Position = u_ModelMatrix * a_Position;
   }`
 
 // Fragment shader program
@@ -68,6 +67,12 @@ var FSHADER_SOURCE =`
     console.log('Failed to get the storage location of u_Size');
     return;
   }
+  u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+  if (!u_ModelMatrix){
+    console.log("Failed to get storage location of u_ModelMatrix");
+  }
+  var identityM = new Matrix4();
+  gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 
  }
 
@@ -172,7 +177,18 @@ function renderAllShapes(){
   //draw a cube
   var body = new Cube();
   body.color = [1.0, 0.0, 0.0, 1.0];
+  //remeber we write backwards, the scale is happening first the the translation
+  body.matrix.translate(-.25, -.5, 0.0);
+  body.matrix.scale(0.5, 1, .5)
   body.render();
+
+  //draw a left arm
+  var leftArm = new Cube();
+  leftArm.color = [1.0, 1.0, 0.0, 1.0];
+  leftArm.matrix.translate(.7, 0.0, 0.0);
+  leftArm.matrix.rotate(45, 0, 0, 1);
+  leftArm.matrix.scale(0.25, .7, .5);
+  leftArm.render();
 
 }
 function drawPicture(){
