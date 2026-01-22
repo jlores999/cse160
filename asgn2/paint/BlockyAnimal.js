@@ -3,8 +3,9 @@
 var VSHADER_SOURCE =`
   attribute vec4 a_Position;
   uniform mat4 u_ModelMatrix;
+  uniform mat4 u_GlobalRotateMatrix;
   void main() {
-    gl_Position = u_ModelMatrix * a_Position;
+    gl_Position = u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
   }`
 
 // Fragment shader program
@@ -25,10 +26,14 @@ var FSHADER_SOURCE =`
  let a_Position;
  let u_FragColor;
  let u_Size;
+
  let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
  let g_selectedSize = 5.0;
  let g_selectedType = POINT;
  let g_selectedSeg = 10;
+
+ let g_globalAngle = 0;
+
  function setUpWebGL(){
     // Retrieve <canvas> element
   canvas = document.getElementById('webgl');
@@ -67,10 +72,17 @@ var FSHADER_SOURCE =`
     console.log('Failed to get the storage location of u_Size');
     return;
   }
+
   u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   if (!u_ModelMatrix){
     console.log("Failed to get storage location of u_ModelMatrix");
   }
+
+  u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
+  if (!u_GlobalRotateMatrix){
+    console.log("Failed to get storage location of u_GlobalRotateMatrix");
+  }
+
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 
@@ -93,8 +105,8 @@ function addActionsForHtmlUI(){
   document.getElementById("cirButton").onclick = function() {g_selectedType=CIRCLE};
   document.getElementById("eqTriButton").onclick = function() {g_selectedType=EQ_TRI};
 
-  document.getElementById("drawPic").onclick = function() {drawPicture()};
-  document.getElementById("changeCan").onclick = function() {changeCanvasColor()};
+  //document.getElementById("drawPic").onclick = function() {drawPicture()};
+  //document.getElementById("changeCan").onclick = function() {changeCanvasColor()};
 
 
   //ColorSlider Events
@@ -102,7 +114,7 @@ function addActionsForHtmlUI(){
   document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
   document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
   //Size Slider Events
-  document.getElementById("sizeSlide").addEventListener('mouseup', function() { g_selectedSize = this.value;});
+  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngle = this.value; renderAllShapes();});
   //Segment Slider Events
   document.getElementById("segSlide").addEventListener('mouseup', function() { g_selectedSeg = parseInt(this.value, 10);});
 }
@@ -165,6 +177,9 @@ function convertCoordinatesEventToGL(ev){
 
 function renderAllShapes(){
 
+  var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+
    // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -172,14 +187,13 @@ function renderAllShapes(){
   //for(var i = 0; i < len; i++) {
     //g_shapesList[i].render();
   //}
-  drawTriangle3D([-1.0,0.0,0.0, -0.5,-1.0,0.0, 0.0,0.0,0.0]);
 
   //draw a cube
   var body = new Cube();
   body.color = [1.0, 0.0, 0.0, 1.0];
   //remeber we write backwards, the scale is happening first the the translation
   body.matrix.translate(-.25, -.5, 0.0);
-  body.matrix.scale(0.5, 1, .5)
+  body.matrix.scale(0.5, 1, .5) 
   body.render();
 
   //draw a left arm
@@ -189,7 +203,13 @@ function renderAllShapes(){
   leftArm.matrix.rotate(45, 0, 0, 1);
   leftArm.matrix.scale(0.25, .7, .5);
   leftArm.render();
-
+  //test box
+  var box = new Cube();
+  box.color = [1.0, 0, 1.0, 1.0];
+  box.matrix.translate(0, 0, -.50, 0);
+  box.matrix.rotate(-30, 1, 0, 0);
+  box.matrix.scale(.5, .5, .5);
+  box.render();
 }
 function drawPicture(){
   //background set up
