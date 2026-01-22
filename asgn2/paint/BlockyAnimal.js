@@ -118,7 +118,8 @@ function main() {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
   // Clear <canvas>
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  //gl.clear(gl.COLOR_BUFFER_BIT);
+  renderAllShapes();
 }
 
 var g_shapesList = [];
@@ -162,10 +163,16 @@ function renderAllShapes(){
    // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  var len = g_shapesList.length;
-  for(var i = 0; i < len; i++) {
-    g_shapesList[i].render();
-  }
+  //var len = g_shapesList.length;
+  //for(var i = 0; i < len; i++) {
+    //g_shapesList[i].render();
+  //}
+  drawTriangle3D([-1.0,0.0,0.0, -0.5,-1.0,0.0, 0.0,0.0,0.0]);
+
+  //draw a cube
+  var body = new Cube();
+  body.color = [1.0, 0.0, 0.0, 1.0];
+  body.render();
 
 }
 function drawPicture(){
