@@ -91,32 +91,32 @@ var FSHADER_SOURCE =`
 
 function addActionsForHtmlUI(){
   //Button events
-  document.getElementById("red").onclick = function () { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; updateColorSliders();};
-  document.getElementById("orange").onclick = function () { g_selectedColor = [1.0, 0.5, 0.0, 1.0]; updateColorSliders();};
-  document.getElementById("yellow").onclick = function () { g_selectedColor = [1.0, 1.0, 0.0, 1.0]; updateColorSliders();};
-  document.getElementById("green").onclick = function () { g_selectedColor = [0.0, 1.0, 0.0, 1.0]; updateColorSliders(); };  
-  document.getElementById("blue").onclick = function () { g_selectedColor = [0.0, 0.0, 1.0, 1.0]; updateColorSliders();};
-  document.getElementById("purple").onclick = function () { g_selectedColor = [0.5, 0.0, 0.5, 1.0]; updateColorSliders();};
+  //document.getElementById("red").onclick = function () { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; updateColorSliders();};
+  //document.getElementById("orange").onclick = function () { g_selectedColor = [1.0, 0.5, 0.0, 1.0]; updateColorSliders();};
+  //document.getElementById("yellow").onclick = function () { g_selectedColor = [1.0, 1.0, 0.0, 1.0]; updateColorSliders();};
+  //document.getElementById("green").onclick = function () { g_selectedColor = [0.0, 1.0, 0.0, 1.0]; updateColorSliders(); };  
+  //document.getElementById("blue").onclick = function () { g_selectedColor = [0.0, 0.0, 1.0, 1.0]; updateColorSliders();};
+  //document.getElementById("purple").onclick = function () { g_selectedColor = [0.5, 0.0, 0.5, 1.0]; updateColorSliders();};
 
-  document.getElementById("clear").onclick = function() {g_shapesList=[]; renderAllShapes()}; //not an explicit action to clear the state, rather more of a state
-  document.getElementById("undo").onclick = function() {undo()};
-  document.getElementById("pointButton").onclick = function() {g_selectedType=POINT};
-  document.getElementById("triButton").onclick = function() {g_selectedType=TRIANGLE};
-  document.getElementById("cirButton").onclick = function() {g_selectedType=CIRCLE};
-  document.getElementById("eqTriButton").onclick = function() {g_selectedType=EQ_TRI};
+  //document.getElementById("clear").onclick = function() {g_shapesList=[]; renderAllShapes()}; //not an explicit action to clear the state, rather more of a state
+  //document.getElementById("undo").onclick = function() {undo()};
+  //document.getElementById("pointButton").onclick = function() {g_selectedType=POINT};
+  //document.getElementById("triButton").onclick = function() {g_selectedType=TRIANGLE};
+  //document.getElementById("cirButton").onclick = function() {g_selectedType=CIRCLE};
+ // document.getElementById("eqTriButton").onclick = function() {g_selectedType=EQ_TRI};
 
   //document.getElementById("drawPic").onclick = function() {drawPicture()};
   //document.getElementById("changeCan").onclick = function() {changeCanvasColor()};
 
 
   //ColorSlider Events
-  document.getElementById("redSlide").addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100;});
-  document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
-  document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
+  //document.getElementById("redSlide").addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100;});
+  //document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
+  //document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
   //Size Slider Events
   document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngle = this.value; renderAllShapes();});
   //Segment Slider Events
-  document.getElementById("segSlide").addEventListener('mouseup', function() { g_selectedSeg = parseInt(this.value, 10);});
+  //document.getElementById("segSlide").addEventListener('mouseup', function() { g_selectedSeg = parseInt(this.value, 10);});
 }
 
 function main() {
@@ -176,6 +176,7 @@ function convertCoordinatesEventToGL(ev){
 }
 
 function renderAllShapes(){
+  //Keep all drawings in the same function for simplicity
 
   var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
@@ -210,6 +211,7 @@ function renderAllShapes(){
   box.matrix.rotate(-30, 1, 0, 0);
   box.matrix.scale(.5, .5, .5);
   box.render();
+
 }
 function drawPicture(){
   //background set up
