@@ -115,7 +115,7 @@ function addActionsForHtmlUI(){
   //document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
   //document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
   //Size Slider Events
-  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngle = this.value; renderAllShapes();});
+  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngle = this.value; renderScene();});
   //Segment Slider Events
   //document.getElementById("segSlide").addEventListener('mouseup', function() { g_selectedSeg = parseInt(this.value, 10);});
 }
@@ -137,7 +137,7 @@ function main() {
 
   // Clear <canvas>
   //gl.clear(gl.COLOR_BUFFER_BIT);
-  renderAllShapes();
+  renderScene();
 }
 
 var g_shapesList = [];
@@ -176,7 +176,7 @@ function convertCoordinatesEventToGL(ev){
   return ([x, y]);
 }
 
-function renderAllShapes(){
+function renderScene(){
   //Keep all drawings in the same function for simplicity
 
   var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
@@ -191,28 +191,143 @@ function renderAllShapes(){
     //g_shapesList[i].render();
   //}
 
-  //draw a cube
+  //body of horse
+  var body = new Cube();
+  body.color = [0.59, 0.29, 0.0, 1.0];
+  body.matrix.scale(1, .4, .4);
+  body.matrix.translate(-.5, -.5, 0);
+  body.render();
+  //horse rear
+// horse neck
+  var neck = new Cube();
+  neck.color = [0.59, 0.29, 0.0, 1.0];
+  neck.matrix.rotate(-45,0,0);
+  neck.matrix.translate(0,0.15,.05);
+  neck.matrix.scale(0.3,0.6,0.3);
+  neck.render();
+//horse head
+  var head = new Cube();
+  head.color = [0.59, 0.29, 0.0, 1.0];
+  head.matrix.translate(.7,-0.0,0.05);
+  head.matrix.rotate(35,0,0);
+  head.matrix.scale(0.25,.5,.3);
+  head.render();
+
+//horse leg 1
+  var leg1 = new Cube();
+  leg1.color = [0.59, 0.29, 0.0, 1.0];
+  leg1.matrix.translate(.35,-.5,0);
+  leg1.matrix.scale(0.15, .5, .15);
+  leg1.render();
+//horse lower leg 1 will be used for animations
+  var l_leg1 = new Cube();
+  l_leg1.color = [0.59, 0.29, 0.0, 1.0];
+  l_leg1.matrix.translate(.35,-.7,0);
+  l_leg1.matrix.scale(0.15, .2, .15);
+  l_leg1.render();
+//horse hoove 1
+  var hoove1 = new Cube();
+  hoove1.color = [.1,.1,.1,1];
+  hoove1.matrix.translate(.4,-.7,-.02);
+  hoove1.matrix.scale(.13,.1,.18);
+  hoove1.render();
+//horse leg 2
+  var leg2 = new Cube();
+  leg2.color = [0.59, 0.29, 0.0, 1.0];
+  leg2.matrix.translate(.35,-.5,.25);
+  leg2.matrix.scale(0.15, .5, .15);
+  leg2.render();
+//horse lower leg 2
+  var l_leg2 = new Cube();
+  l_leg2.color = [0.59, 0.29, 0.0, 1.0];
+  l_leg2.matrix.translate(.35,-.7,.25);
+  l_leg2.matrix.scale(0.15, .2, .15);
+  l_leg2.render();
+//horse hoove 2
+  var hoove2 = new Cube();
+  hoove2.color = [.1,.1,.1,1];
+  hoove2.matrix.translate(.4,-.7, .23);
+  hoove2.matrix.scale(.13,.1,.18);
+  hoove2.render();
+//horse leg 3
+  var leg3 = new Cube();
+  leg3.color = [0.59, 0.29, 0.0, 1.0];
+  leg3.matrix.translate(-.5,-.5,.25);
+  leg3.matrix.scale(0.15, .5, .15);
+  leg3.render();
+//horse lower leg 3
+  var l_leg3 = new Cube();
+  l_leg3.color = [0.59, 0.29, 0.0, 1.0];
+  l_leg3.matrix.translate(-.5,-.7,.25);
+  l_leg3.matrix.scale(0.15, .2, .15);
+  l_leg3.render();
+//horse hoove 3
+  var hoove3 = new Cube();
+  hoove3.color = [.1,.1,.1,1];
+  hoove3.matrix.translate(-.45,-.7, .23);
+  hoove3.matrix.scale(.13,.1,.18);
+  hoove3.render();
+//horse leg 4
+  var leg4 = new Cube();
+  leg4.color = [0.59, 0.29, 0.0, 1.0];
+  leg4.matrix.translate(-.5,-.5,.0);
+  leg4.matrix.scale(0.15, .5, .15);
+  leg4.render();
+//horse lower leg 4
+  var l_leg3 = new Cube();
+  l_leg3.color = [0.59, 0.29, 0.0, 1.0];
+  l_leg3.matrix.translate(-.5,-.7, 0);
+  l_leg3.matrix.scale(0.15, .2, .15);
+  l_leg3.render();
+//horse hoove 3
+  var hoove4 = new Cube();
+  hoove4.color = [.1,.1,.1,1];
+  hoove4.matrix.translate(-.45,-.7, -0.01);
+  hoove4.matrix.scale(.13,.1,.18);
+  hoove4.render();
+//horse tail
+  var tail = new Cube();
+  tail.color = [0.2,0.2,0.2,1];
+  tail.matrix.translate(-.2,-.45,0);
+  tail.matrix.rotate(-20,0,0);
+  tail.matrix.translate(-.5,0,0.15);
+  tail.matrix.scale(.1,.5,.1);
+  tail.render();
+//maybe make the back of the horse more curve by adding a rotated block.
+//horse mane
+  var mane = new Cube();
+  mane.color = [0.2,0.2,0.2,1];
+  mane.matrix.translate(.2,.3,0.15);
+  mane.matrix.rotate(-47,0,0);
+  mane.matrix.scale(0.1, .5, .1); 
+  mane.render();
+
+
+  /*
   var body = new Cube();
   body.color = [1.0, 0.0, 0.0, 1.0];
   //remeber we write backwards, the scale is happening first the the translation
-  body.matrix.translate(-.25, -.5, 0.0);
-  body.matrix.scale(0.5, 1, .5) 
+  body.matrix.translate(-.25, -.75, 0.0);
+  body.matrix.rotate(-5,1,0,0);
+  body.matrix.scale(0.5, .3, .5); 
   body.render();
 
   //draw a left arm
   var leftArm = new Cube();
   leftArm.color = [1.0, 1.0, 0.0, 1.0];
-  leftArm.matrix.translate(.7, 0.0, 0.0);
-  leftArm.matrix.rotate(45, 0, 0, 1);
-  leftArm.matrix.scale(0.25, .7, .5);
+  leftArm.matrix.setTranslate(0, -.5, 0.0);
+  leftArm.matrix.rotate(-5,1,0,0);
+  leftArm.matrix.rotate(0,0,0,1);
+  leftArm.matrix.scale(0.25,.7,.5);
+  leftArm.matrix.translate(-.5,0,0);
   leftArm.render();
   //test box
   var box = new Cube();
   box.color = [1.0, 0, 1.0, 1.0];
-  box.matrix.translate(0, 0, -.50, 0);
-  box.matrix.rotate(-30, 1, 0, 0);
-  box.matrix.scale(.5, .5, .5);
-  box.render();
+  box.matrix.translate(-.1,.1,.0,0);
+  box.matrix.rotate(-30,1,0,0);
+  box.matrix.scale(.2,.4,.2);
+  box.render();*/
 
 }
 function drawPicture(){
