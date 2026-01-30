@@ -91,33 +91,7 @@ var FSHADER_SOURCE =`
 
 
 function addActionsForHtmlUI(){
-  //Button events
-  //document.getElementById("red").onclick = function () { g_selectedColor = [1.0, 0.0, 0.0, 1.0]; updateColorSliders();};
-  //document.getElementById("orange").onclick = function () { g_selectedColor = [1.0, 0.5, 0.0, 1.0]; updateColorSliders();};
-  //document.getElementById("yellow").onclick = function () { g_selectedColor = [1.0, 1.0, 0.0, 1.0]; updateColorSliders();};
-  //document.getElementById("green").onclick = function () { g_selectedColor = [0.0, 1.0, 0.0, 1.0]; updateColorSliders(); };  
-  //document.getElementById("blue").onclick = function () { g_selectedColor = [0.0, 0.0, 1.0, 1.0]; updateColorSliders();};
-  //document.getElementById("purple").onclick = function () { g_selectedColor = [0.5, 0.0, 0.5, 1.0]; updateColorSliders();};
-
-  //document.getElementById("clear").onclick = function() {g_shapesList=[]; renderAllShapes()}; //not an explicit action to clear the state, rather more of a state
-  //document.getElementById("undo").onclick = function() {undo()};
-  //document.getElementById("pointButton").onclick = function() {g_selectedType=POINT};
-  //document.getElementById("triButton").onclick = function() {g_selectedType=TRIANGLE};
-  //document.getElementById("cirButton").onclick = function() {g_selectedType=CIRCLE};
- // document.getElementById("eqTriButton").onclick = function() {g_selectedType=EQ_TRI};
-
-  //document.getElementById("drawPic").onclick = function() {drawPicture()};
-  //document.getElementById("changeCan").onclick = function() {changeCanvasColor()};
-
-
-  //ColorSlider Events
-  //document.getElementById("redSlide").addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100;});
-  //document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
-  //document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
-  //Size Slider Events
   document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngle = this.value; renderScene();});
-  //Segment Slider Events
-  //document.getElementById("segSlide").addEventListener('mouseup', function() { g_selectedSeg = parseInt(this.value, 10);});
 }
 
 function main() {
@@ -129,14 +103,11 @@ function main() {
 
   // Register function (event handler) to be called on a mouse press
   canvas.onmousedown = click;
-  //canvas.onmousemove = click;
   canvas.onmousemove = function(ev) {if(ev.buttons == 1) {click(ev)}}; //button is 1 when the mouse is held down
 
   // Specify the color for clearing <canvas>
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  gl.clearColor(0.5, 0.5, 1.0, 1.0);
 
-  // Clear <canvas>
-  //gl.clear(gl.COLOR_BUFFER_BIT);
   renderScene();
 }
 
@@ -191,99 +162,108 @@ function renderScene(){
     //g_shapesList[i].render();
   //}
 
-  //body of horse
+//body of horse
   var body = new Cube();
-  body.color = [0.59, 0.29, 0.0, 1.0];
+  body.color = [0.49, 0.19, 0.0, 1.0];
   body.matrix.scale(1, .4, .4);
   body.matrix.translate(-.5, -.5, 0);
   body.render();
   //horse rear
 // horse neck
   var neck = new Cube();
-  neck.color = [0.59, 0.29, 0.0, 1.0];
+  neck.color = [0.49, 0.19, 0.0, 1.0];
   neck.matrix.rotate(-45,0,0);
   neck.matrix.translate(0,0.15,.05);
   neck.matrix.scale(0.3,0.6,0.3);
   neck.render();
 //horse head
   var head = new Cube();
-  head.color = [0.59, 0.29, 0.0, 1.0];
-  head.matrix.translate(.7,-0.0,0.05);
-  head.matrix.rotate(35,0,0);
-  head.matrix.scale(0.25,.5,.3);
+  head.color = [0.49, 0.19, 0.0, 1.0];
+  head.matrix.translate(0.75, 0.05 ,0.05);
+  head.matrix.rotate(40,0,0);
+  head.matrix.scale(0.2,.5,.3);
   head.render();
 
 //horse leg 1
   var leg1 = new Cube();
-  leg1.color = [0.59, 0.29, 0.0, 1.0];
-  leg1.matrix.translate(.35,-.5,0);
+  leg1.color = [0.49, 0.19, 0.0, 1.0];
+  leg1.matrix.translate(.35,-.45,0);
   leg1.matrix.scale(0.15, .5, .15);
   leg1.render();
 //horse lower leg 1 will be used for animations
   var l_leg1 = new Cube();
-  l_leg1.color = [0.59, 0.29, 0.0, 1.0];
-  l_leg1.matrix.translate(.35,-.7,0);
+  l_leg1.color = [0.49, 0.19, 0.0, 1.0];
+  l_leg1.matrix.translate(.35,-.65,0);
   l_leg1.matrix.scale(0.15, .2, .15);
   l_leg1.render();
 //horse hoove 1
   var hoove1 = new Cube();
   hoove1.color = [.1,.1,.1,1];
   hoove1.matrix.translate(.4,-.7,-.02);
-  hoove1.matrix.scale(.13,.1,.18);
+  hoove1.matrix.scale(.13,.08,.18);
   hoove1.render();
+//cone!
+  var cone_hat = new Cone();
+  cone_hat.color = [0.3,0.3,1, 1];
+  cone_hat.matrix.translate(.6,0.6,.13)
+  cone_hat.matrix.rotate(-30,0,0);
+  cone_hat.matrix.scale(.13,.2,.13);
+  cone_hat.render();
+
+
 //horse leg 2
   var leg2 = new Cube();
-  leg2.color = [0.59, 0.29, 0.0, 1.0];
-  leg2.matrix.translate(.35,-.5,.25);
+  leg2.color = [0.49, 0.19, 0.0, 1.0];
+  leg2.matrix.translate(.35,-.45,.25);
   leg2.matrix.scale(0.15, .5, .15);
   leg2.render();
 //horse lower leg 2
   var l_leg2 = new Cube();
-  l_leg2.color = [0.59, 0.29, 0.0, 1.0];
-  l_leg2.matrix.translate(.35,-.7,.25);
+  l_leg2.color = [0.49, 0.19, 0.0, 1.0];
+  l_leg2.matrix.translate(.35,-.65,.25);
   l_leg2.matrix.scale(0.15, .2, .15);
   l_leg2.render();
 //horse hoove 2
   var hoove2 = new Cube();
   hoove2.color = [.1,.1,.1,1];
   hoove2.matrix.translate(.4,-.7, .23);
-  hoove2.matrix.scale(.13,.1,.18);
+  hoove2.matrix.scale(.13,.08,.18);
   hoove2.render();
 //horse leg 3
   var leg3 = new Cube();
-  leg3.color = [0.59, 0.29, 0.0, 1.0];
-  leg3.matrix.translate(-.5,-.5,.25);
+  leg3.color = [0.49, 0.19, 0.0, 1.0];
+  leg3.matrix.translate(-.5,-.45,.25);
   leg3.matrix.scale(0.15, .5, .15);
   leg3.render();
 //horse lower leg 3
   var l_leg3 = new Cube();
-  l_leg3.color = [0.59, 0.29, 0.0, 1.0];
-  l_leg3.matrix.translate(-.5,-.7,.25);
+  l_leg3.color = [0.49, 0.19, 0.0, 1.0];
+  l_leg3.matrix.translate(-.5,-.65,.25);
   l_leg3.matrix.scale(0.15, .2, .15);
   l_leg3.render();
 //horse hoove 3
   var hoove3 = new Cube();
   hoove3.color = [.1,.1,.1,1];
   hoove3.matrix.translate(-.45,-.7, .23);
-  hoove3.matrix.scale(.13,.1,.18);
+  hoove3.matrix.scale(.13,.08,.18);
   hoove3.render();
 //horse leg 4
   var leg4 = new Cube();
-  leg4.color = [0.59, 0.29, 0.0, 1.0];
-  leg4.matrix.translate(-.5,-.5,.0);
+  leg4.color = [0.49, 0.19, 0.0, 1.0];
+  leg4.matrix.translate(-.5,-.45,.0);
   leg4.matrix.scale(0.15, .5, .15);
   leg4.render();
 //horse lower leg 4
   var l_leg3 = new Cube();
-  l_leg3.color = [0.59, 0.29, 0.0, 1.0];
-  l_leg3.matrix.translate(-.5,-.7, 0);
+  l_leg3.color = [0.49, 0.19, 0.0, 1.0];
+  l_leg3.matrix.translate(-.5,-.65, 0);
   l_leg3.matrix.scale(0.15, .2, .15);
   l_leg3.render();
-//horse hoove 3
+//horse hoove 4
   var hoove4 = new Cube();
   hoove4.color = [.1,.1,.1,1];
   hoove4.matrix.translate(-.45,-.7, -0.01);
-  hoove4.matrix.scale(.13,.1,.18);
+  hoove4.matrix.scale(.13,.08,.18);
   hoove4.render();
 //horse tail
   var tail = new Cube();
@@ -293,7 +273,8 @@ function renderScene(){
   tail.matrix.translate(-.5,0,0.15);
   tail.matrix.scale(.1,.5,.1);
   tail.render();
-//maybe make the back of the horse more curve by adding a rotated block.
+//maybe make the back of the horse more curve by adding a rotated block.?
+//perhaps make it so the lower legs are translated a little bit so that it can look a litle curved
 //horse mane
   var mane = new Cube();
   mane.color = [0.2,0.2,0.2,1];
@@ -301,6 +282,41 @@ function renderScene(){
   mane.matrix.rotate(-47,0,0);
   mane.matrix.scale(0.1, .5, .1); 
   mane.render();
+//front mane
+  var f_mane = new Cube();
+  f_mane.color = [0.2,0.2,0.2,1];
+  f_mane.matrix.translate(.65,.42,.12);
+  f_mane.matrix.rotate(35,0,0);
+  f_mane.matrix.scale(.1, .2, .15);
+  f_mane.render();
+//left ear
+  var l_ear = new Cube();
+  l_ear.color = [0.49, 0.19, 0.0, 1.0];
+  l_ear.matrix.translate(0.60,.53,0.07);
+  l_ear.matrix.rotate(-52,0,0);
+  l_ear.matrix.scale(.05,.1,.05);
+  l_ear.render();
+//front left ear
+  var fl_ear = new Cube();
+  fl_ear.color = [0.29, 0.09, 0.0, 1.0];
+  fl_ear.matrix.translate(0.64,.50,0.08);
+  fl_ear.matrix.rotate(-52,0,0);
+  fl_ear.matrix.scale(.03,.07,.03);
+  fl_ear.render();
+//right_ear
+  var r_ear = new Cube();
+  r_ear.color = [0.49, 0.19, 0.0, 1.0];
+  r_ear.matrix.translate(0.60,.53,0.27);
+  r_ear.matrix.rotate(-52,0,0);
+  r_ear.matrix.scale(.05,.1,.05);
+  r_ear.render();
+//front right ear
+  var fr_ear = new Cube();
+  fr_ear.color = [0.29, 0.09, 0.0, 1.0];
+  fr_ear.matrix.translate(0.64,.50,0.28);
+  fr_ear.matrix.rotate(-52,0,0);
+  fr_ear.matrix.scale(.03,.07,.03);
+  fr_ear.render();
 
 
   /*
@@ -328,81 +344,46 @@ function renderScene(){
   box.matrix.rotate(-30,1,0,0);
   box.matrix.scale(.2,.4,.2);
   box.render();*/
+//left eye
+  var l_eye = new Cube();
+  l_eye.color = [1,1,1,1];
+  l_eye.matrix.translate(0.65,.34,0.03);
+  l_eye.matrix.rotate(42,0,0);
+  l_eye.matrix.scale(.07,.07,.02);
+  l_eye.render();
+// right eye
+  var r_eye = new Cube();
+  r_eye.color = [1,1,1,1];
+  r_eye.matrix.translate(0.65,.34,0.30);
+  r_eye.matrix.rotate(42,0,0);
+  r_eye.matrix.scale(.07,.07,.07);
+  r_eye.render();
+//left pupil
+  var l_pupil = new Cube();
+  l_pupil.color = [0.07,0.07,0.07,1.0];
+  l_pupil.matrix.translate(0.65,.34,0.01);
+  l_pupil.matrix.rotate(42,0,0);
+  l_pupil.matrix.scale(.05,.05,.02);
+  l_pupil.render();
+//left pupil
+  var r_pupil = new Cube();
+  r_pupil.color = [0.07,0.07,0.07,1.0];
+  r_pupil.matrix.translate(0.65,.34,0.37);
+  r_pupil.matrix.rotate(42,0,0);
+  r_pupil.matrix.scale(.05,.05,.02);
+  r_pupil.render();
+
+//nose construcion
+//top
+  var t_nose = new Cube();
+  t_nose.color = [.07, .07, .07, 1];
+  t_nose.matrix.translate(0.85, 0.08,0.1);
+  t_nose.matrix.rotate(40,0,0);
+  t_nose.matrix.scale(.08,.45,.2);
+  t_nose.render();
 
 }
-function drawPicture(){
-  //background set up
-  gl.clearColor(.53, .81, .92, 1.0);
-  gl.clear(gl.COLOR_BUFFER_BIT);
 
-  //triangle aura
-  gl.uniform4f(u_FragColor, .8, 0.2, 1.0, 1.0);
-  drawTriangle([-0.1, 0.5, 0.1, 0.5, 0.0, 0.7]);
-  drawTriangle([-0.1, -0.25, 0.1, -0.25, -0.1, 0.5]);
-  drawTriangle([0.1, -0.25, 0.1, 0.5, -0.1, 0.5]);
-  drawTriangle([-.1, .1,   -.6, .25,  -.1, .25]);
-  drawTriangle([.1, .1,   .6, .25,  .1, .25]);
-
-  drawTriangle([-.25, .25,   -.7, .35,  -.25, .35]);
-  drawTriangle([.25, .25,   .7, .35,  .25, .35]);
-  //Blade
-  //gl.uniform4f(u_FragColor, .5, .5, .5, 1.0);
-  gl.uniform4f(u_FragColor, 0.0, 0.6, 0.9, 1.0);
-  drawTriangle([-0.05, -0.2, 0.05, -0.2, -0.05, 0.5]);
-  drawTriangle([0.05, -0.2, 0.05, 0.5, -0.05, 0.5]);
-  drawTriangle([-0.05, 0.5, 0.05, 0.5, 0.0, 0.6]);
-  //J hilt
-//gl.uniform4f(u_FragColor, .65, 0.2, 0.2, 1.0);
-  drawTriangle([0.0,-0.07,      -0.05, -0.25, -0.05, -0.07]);
-  drawTriangle([0.0, -0.07,     0, -0.25,   -0.05, -0.25]);
-  drawTriangle([-0.05, -0.25,     -0.2, -.25,  -.05, -.22]);
-  drawTriangle([-0.2, -.25,   -.2, -.22,  -.05, -.22]);
-  drawTriangle([-.2, -.22,  -.2, -.15,   -.15, -.22]);
-  drawTriangle([ -0.15, -0.15,  -0.2, -0.15,  -0.15, -0.22 ]);
-  //L Hilt
-  drawTriangle([ 0.0, -0.07,   0.05, -0.25,   0.05, -0.07 ]);
-  drawTriangle([ 0.0, -0.07,   0.0,  -0.25,   0.05, -0.25 ]);
-  drawTriangle([ 0.05, -0.25,   0.2, -0.25,   0.05, -0.22 ]);
-  drawTriangle([ 0.2,  -0.25,   0.2, -0.22,   0.05, -0.22 ]);
-  //Broken piece of L hilt
-  drawTriangle([0.15, -0.45, 0.3, -0.45, 0.15, -0.42]);
-  drawTriangle([0.3, -0.45, 0.3, -0.42, 0.15, -0.42]);
-  //line for initials
-  gl.uniform4f(u_FragColor, 0.0, 0.0, 0.0, 1.0);
-  drawTriangle([-0.005, -0.25, 0.005, -0.25, -0.005, 0.55]);
-  drawTriangle([0.005, -0.25, 0.005, 0.55, -0.005, 0.55]);
-
-  //sword grip
-  gl.uniform4f(u_FragColor, .25, .25, .25, 1.0); 
-  drawTriangle([-0.05, -0.25, -0.05, -0.45, 0.05, -0.25]);
-  drawTriangle([0.05, -0.25, -0.05, -0.45, 0.05, -0.45]);
-  //bottom
-  gl.uniform4f(u_FragColor, .1, .1, .1, 1.0);
-  drawTriangle([-0.4, -0.45, 0.4, -0.45, -0.4, -1.0]);
-  drawTriangle([0.4, -0.45, 0.4, -1.0, -0.4, -1.0]);
-  //hill
-  gl.uniform4f(u_FragColor, .0, 1.0, .0, 1.0);
-  drawTriangle([-2, -0.45, -0.05, -0.45, -2, -5]);
-  drawTriangle([1, -0.45, 0.05, -0.45, 2, -5]);
-  //left spikes
-  gl.uniform4f(u_FragColor, .6, .4, .3, 1.0);  
-  drawTriangle([-0.5, -0.25, -0.55, -0.45, -0.45, -0.25]);
-  drawTriangle([-0.45, -0.25, -0.55, -0.45, -0.45, -0.45]);
-  drawTriangle([-.5, -.25,   -.45, -.25,    -.45, 0.0]);
-
-  drawTriangle([-0.7, -0.25, -0.75, -0.45, -0.65, -0.25]);
-  drawTriangle([-0.65, -0.25, -0.75, -0.45, -0.65, -0.45]);
-  drawTriangle([-.7, -.25,   -.65, -.25,    -.65, 0.2]);
-
-  //right spikes
-  drawTriangle([0.5, -0.25, 0.55, -0.45, 0.45, -0.25]);
-  drawTriangle([0.45, -0.25, 0.55, -0.45, 0.45, -0.45]);
-  drawTriangle([.5, -.25,   .45, -.25,    .45, 0.0]);
-
-  drawTriangle([0.7, -0.25, 0.75, -0.45, 0.65, -0.25]);
-  drawTriangle([0.65, -0.25, 0.75, -0.45, 0.65, -0.45]);
-  drawTriangle([.7, -.25,   .65, -.25,    .65, 0.2]);
-}
 function changeCanvasColor(){
   gl.clearColor(g_selectedColor[0], g_selectedColor[1], g_selectedColor[2], 1.0);
 
