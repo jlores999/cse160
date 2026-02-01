@@ -32,7 +32,11 @@ var FSHADER_SOURCE =`
  let g_selectedType = POINT;
  let g_selectedSeg = 10;
 
- let g_globalAngle = 0;
+ let g_globalAngleY = 0;
+ let g_globalAngleX = 0;
+ let isDragging = false;
+ let lastMouseX = 0;
+ let lastMouseY = 0;
 
  function setUpWebGL(){
     // Retrieve <canvas> element
@@ -91,7 +95,7 @@ var FSHADER_SOURCE =`
 
 
 function addActionsForHtmlUI(){
-  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngle = this.value; renderScene();});
+  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngleY = this.value; renderScene();});
 }
 
 function main() {
@@ -101,10 +105,7 @@ function main() {
   //Set up actions for the HTML UI
   addActionsForHtmlUI();
 
-  // Register function (event handler) to be called on a mouse press
-  canvas.onmousedown = click;
-  canvas.onmousemove = function(ev) {if(ev.buttons == 1) {click(ev)}}; //button is 1 when the mouse is held down
-
+  addMouseControl();
   // Specify the color for clearing <canvas>
   gl.clearColor(0.5, 0.5, 1.0, 1.0);
 
@@ -137,6 +138,31 @@ function click(ev) {
   renderAllShapes();
 }
 
+function addMouseControl(){
+  canvas.onmousedown = function(ev){
+    isDragging = true;
+    lastMouseX = ev.clientX;
+    lastMouseY = ev.clientY;
+  };
+  canvas.onmousemove = function(ev) {
+  if (isDragging) {
+    let deltaX = ev.clientX - lastMouseX;
+    let deltaY = ev.clientY - lastMouseY;
+      
+    g_globalAngleX += deltaY * 0.5;  // Adjust sensitivity with the multiplier
+    g_globalAngleY += deltaX * 0.5;
+      
+    lastMouseX = ev.clientX;
+    lastMouseY = ev.clientY;
+      
+    renderScene();
+    }
+  };
+
+  canvas.onmouseup = function(ev) {
+    isDragging = false;
+  };
+}
 function convertCoordinatesEventToGL(ev){
   var x = ev.clientX; // x coordinate of a mouse pointer
   var y = ev.clientY; // y coordinate of a mouse pointer
@@ -150,12 +176,12 @@ function convertCoordinatesEventToGL(ev){
 function renderScene(){
   //Keep all drawings in the same function for simplicity
 
-  var globalRotMat=new Matrix4().rotate(g_globalAngle,0,1,0);
+  var globalRotMat=new Matrix4().rotate(g_globalAngleY,0,1,0).rotate(g_globalAngleX, 1,0,0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
    // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  //gl.clear(gl.COLOR_BUFFER_BIT);
 
   //var len = g_shapesList.length;
   //for(var i = 0; i < len; i++) {
@@ -179,9 +205,9 @@ function renderScene(){
 //horse head
   var head = new Cube();
   head.color = [0.49, 0.19, 0.0, 1.0];
-  head.matrix.translate(0.75, 0.05 ,0.05);
+  head.matrix.translate(0.64, 0.18 ,0.05);
   head.matrix.rotate(40,0,0);
-  head.matrix.scale(0.2,.5,.3);
+  head.matrix.scale(0.2,.3,.3);
   head.render();
 
 //horse leg 1
@@ -193,16 +219,16 @@ function renderScene(){
 //horse lower leg 1 will be used for animations
   var l_leg1 = new Cube();
   l_leg1.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg1.matrix.translate(.35,-.65,0);
-  l_leg1.matrix.scale(0.15, .2, .15);
+  l_leg1.matrix.translate(.365,-.65,0.02);
+  l_leg1.matrix.scale(0.12, .2, .12);
   l_leg1.render();
 //horse hoove 1
   var hoove1 = new Cube();
   hoove1.color = [.1,.1,.1,1];
-  hoove1.matrix.translate(.4,-.7,-.02);
-  hoove1.matrix.scale(.13,.08,.18);
+  hoove1.matrix.translate(.4,-.73,.02);
+  hoove1.matrix.scale(.13,.08,.13);
   hoove1.render();
-//cone!
+//cone hat
   var cone_hat = new Cone();
   cone_hat.color = [0.3,0.3,1, 1];
   cone_hat.matrix.translate(.6,0.6,.13)
@@ -220,15 +246,16 @@ function renderScene(){
 //horse lower leg 2
   var l_leg2 = new Cube();
   l_leg2.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg2.matrix.translate(.35,-.65,.25);
-  l_leg2.matrix.scale(0.15, .2, .15);
+  l_leg2.matrix.translate(.365,-.65,.265);
+  l_leg2.matrix.scale(0.12, .2, .12);
   l_leg2.render();
 //horse hoove 2
   var hoove2 = new Cube();
   hoove2.color = [.1,.1,.1,1];
-  hoove2.matrix.translate(.4,-.7, .23);
-  hoove2.matrix.scale(.13,.08,.18);
+  hoove2.matrix.translate(.4,-.73, .26);
+  hoove2.matrix.scale(.13,.08,.13);
   hoove2.render();
+
 //horse leg 3
   var leg3 = new Cube();
   leg3.color = [0.49, 0.19, 0.0, 1.0];
@@ -238,15 +265,17 @@ function renderScene(){
 //horse lower leg 3
   var l_leg3 = new Cube();
   l_leg3.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg3.matrix.translate(-.5,-.65,.25);
-  l_leg3.matrix.scale(0.15, .2, .15);
+  l_leg3.matrix.translate(-.485,-.65,.265);
+  l_leg3.matrix.scale(0.12, .2, .12);
   l_leg3.render();
 //horse hoove 3
   var hoove3 = new Cube();
   hoove3.color = [.1,.1,.1,1];
-  hoove3.matrix.translate(-.45,-.7, .23);
-  hoove3.matrix.scale(.13,.08,.18);
+  hoove3.matrix.translate(-.45,-.73, .26);
+  hoove3.matrix.scale(.13,.08,.13);
   hoove3.render();
+
+
 //horse leg 4
   var leg4 = new Cube();
   leg4.color = [0.49, 0.19, 0.0, 1.0];
@@ -256,15 +285,16 @@ function renderScene(){
 //horse lower leg 4
   var l_leg3 = new Cube();
   l_leg3.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg3.matrix.translate(-.5,-.65, 0);
-  l_leg3.matrix.scale(0.15, .2, .15);
+  l_leg3.matrix.translate(-.485,-.65, 0.015);
+  l_leg3.matrix.scale(0.12, .2, .12);
   l_leg3.render();
 //horse hoove 4
   var hoove4 = new Cube();
   hoove4.color = [.1,.1,.1,1];
-  hoove4.matrix.translate(-.45,-.7, -0.01);
-  hoove4.matrix.scale(.13,.08,.18);
+  hoove4.matrix.translate(-.45,-.73, 0.01);
+  hoove4.matrix.scale(.13,.08,.13);
   hoove4.render();
+
 //horse tail
   var tail = new Cube();
   tail.color = [0.2,0.2,0.2,1];
@@ -372,31 +402,33 @@ function renderScene(){
   r_pupil.matrix.rotate(42,0,0);
   r_pupil.matrix.scale(.05,.05,.02);
   r_pupil.render();
-
-//nose construcion
-//top
-  var t_nose = new Cube();
-  t_nose.color = [.07, .07, .07, 1];
-  t_nose.matrix.translate(0.85, 0.08,0.1);
-  t_nose.matrix.rotate(40,0,0);
-  t_nose.matrix.scale(.08,.45,.2);
-  t_nose.render();
-
-}
-
-function changeCanvasColor(){
-  gl.clearColor(g_selectedColor[0], g_selectedColor[1], g_selectedColor[2], 1.0);
-
-  // Clear <canvas>
-  gl.clear(gl.COLOR_BUFFER_BIT);
-  renderAllShapes();
-}
-function updateColorSliders() {
-  document.getElementById("redSlide").value   = g_selectedColor[0] * 100;
-  document.getElementById("greenSlide").value = g_selectedColor[1] * 100;
-  document.getElementById("blueSlide").value  = g_selectedColor[2] * 100;
-}
-function undo(){
-  g_shapesList.pop();
-  renderAllShapes();
+//mouth
+  var mouth = new Cube();
+  mouth.color = [.49, .19, .0, 1];
+  //mouth.color = [0,0,0,1];
+  mouth.matrix.translate(.77, 0.10,0.06);
+  mouth.matrix.rotate(40,0,0);
+  mouth.matrix.scale(.15,.15,.28);
+  mouth.render();
+//bottom mouth
+  var bottom_mouth  = new Cube();
+  bottom_mouth.color = [.49, .19, .0, 1];
+  bottom_mouth.matrix.translate(0.6,0.16,0.13);
+  bottom_mouth.matrix.rotate(-50,0,0);
+  bottom_mouth.matrix.scale(.2,.05,.15);
+  bottom_mouth.render();
+//tongue
+  var tongue = new Cube();
+  tongue.color = [.9,.6,.6,1];
+  tongue.matrix.translate(.65,.18,0.12);
+  tongue.matrix.rotate(-50,0,0);
+  tongue.matrix.scale(.2,.02,.15);
+  tongue.render()
+//nose
+  var nose = new Cube();
+  nose.color = [.29,0.05,0,1];
+  nose.matrix.translate(.83,0.02,0.1);
+  nose.matrix.rotate(40,0,0);
+  nose.matrix.scale(.15,.1,.2);
+  nose.render();
 }
