@@ -16,10 +16,11 @@ var FSHADER_SOURCE =`
     gl_FragColor = u_FragColor;
   }`
 
- const POINT = 0;
- const TRIANGLE = 1;
- const CIRCLE = 2;
- const EQ_TRI = 3;
+
+ let body, neck, head, leg1, l_leg1, hoove1, cone_hat, leg2, l_leg2, hoove2;
+ let leg3, l_leg3, hoove3, leg4, l_leg4, hoove4, tail, mane, f_mane;
+ let l_ear, fl_ear, r_ear, fr_ear, l_eye, r_eye, l_pupil, r_pupil;
+ let mouth, bottom_mouth, tongue, nose;
 
  let canvas;
  let gl;
@@ -29,14 +30,31 @@ var FSHADER_SOURCE =`
 
  let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
  let g_selectedSize = 5.0;
- let g_selectedType = POINT;
  let g_selectedSeg = 10;
-
+ let g_startTime = 0;
  let g_globalAngleY = 0;
  let g_globalAngleX = 0;
  let isDragging = false;
  let lastMouseX = 0;
  let lastMouseY = 0;
+
+ let g_leg1Slide = 0;
+ let g_l_leg1Slide = 0;
+ let g_walkAnim = false;
+ let g_shiftClickAnim = false;
+ let g_shiftClickStartTime = 0;
+ let g_shiftClickDuration = 2000;  // 2 seconds in milliseconds
+
+ let g_leg2Slide = 0;
+ let g_leg3Slide = 0;
+ let g_leg4Slide = 0;
+
+ let g_l_leg2Slide = 0;
+ let g_l_leg3Slide = 0;
+ let g_l_leg4Slide = 0;
+
+ let g_mouthSlide = -50;
+
 
  function setUpWebGL(){
     // Retrieve <canvas> element
@@ -95,7 +113,11 @@ var FSHADER_SOURCE =`
 
 
 function addActionsForHtmlUI(){
-  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngleY = this.value; renderScene();});
+  document.getElementById("legSlide").addEventListener('mousemove', function() {g_leg1Slide = this.value;});
+  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngleY = this.value;});
+  document.getElementById("mouthSlide").addEventListener('mousemove', function() {g_mouthSlide = this.value;});
+  document.getElementById("On").onclick = function() {g_walkAnim = true;};
+  document.getElementById("Off").onclick = function() {g_walkAnim = false};
 }
 
 function main() {
@@ -106,13 +128,51 @@ function main() {
   addActionsForHtmlUI();
 
   addMouseControl();
+
+canvas.addEventListener('click', function(ev) {
+    if (ev.shiftKey) {
+        g_shiftClickAnim = true;
+        g_shiftClickStartTime = performance.now();
+    }
+});
   // Specify the color for clearing <canvas>
   gl.clearColor(0.5, 0.5, 1.0, 1.0);
+  requestAnimationFrame(tick);
+}
 
+var frameCount = 0;
+var fpsStartTime = performance.now();
+
+var lastFrameTime = 0;
+function tick(){
+  var currentTime = performance.now();
+  if (currentTime - lastFrameTime < 50) {
+    requestAnimationFrame(tick);
+    return;
+  }
+  lastFrameTime = currentTime;
+  
+  g_seconds = (performance.now() - g_startTime) / 1000.0;
+  updateAnimationAngles();
   renderScene();
+  
+  frameCount++;
+  if (currentTime - fpsStartTime >= 1000) {
+    var fpsElement = document.getElementById("fps");
+    if (fpsElement) {
+      fpsElement.innerHTML = "FPS: " + frameCount;
+    } else {
+      console.log("FPS element not found!");
+    }
+    frameCount = 0;
+    fpsStartTime = currentTime;
+  }
+  
+  requestAnimationFrame(tick);
 }
 
 var g_shapesList = [];
+/*
 function click(ev) {
   let [x, y] = convertCoordinatesEventToGL(ev);
   let point;
@@ -137,6 +197,7 @@ function click(ev) {
 
   renderAllShapes();
 }
+*/
 
 function addMouseControl(){
   canvas.onmousedown = function(ev){
@@ -154,8 +215,6 @@ function addMouseControl(){
       
     lastMouseX = ev.clientX;
     lastMouseY = ev.clientY;
-      
-    renderScene();
     }
   };
 
@@ -173,262 +232,298 @@ function convertCoordinatesEventToGL(ev){
   return ([x, y]);
 }
 
+/*function updateAnimationAngles(){
+  if (g_walkAnim){
+    g_leg1Slide = (25*Math.sin(g_seconds * 2));
+    g_l_leg1Slide = Math.max(0, 15*Math.sin(g_seconds * 2));
+  }
+}*/
+
+function updateAnimationAngles() {
+
+    if (g_shiftClickAnim) {
+        let elapsed = performance.now() - g_shiftClickStartTime;
+        if (elapsed > g_shiftClickDuration) {
+            g_shiftClickAnim = false;
+            g_mouthSlide = -50;  // reset
+        } else {
+            // Oscillate mouth between -100 and -50
+            g_mouthSlide = -75 + 25 * Math.sin((elapsed / g_shiftClickDuration) * Math.PI * 4);
+        }
+    }
+  if (!g_walkAnim) return;
+
+  let speed = 2;      // swing speed
+  let A = 20;         // upper leg amplitude
+  let B = 5;         // lower leg amplitude
+  let t = g_seconds * speed;
+
+  g_leg1Slide = A * Math.sin(t);         // front left
+  g_leg2Slide = A * Math.sin(t + Math.PI); // front right
+  g_leg3Slide = A * Math.sin(t + Math.PI); // back left
+  g_leg4Slide = A * Math.sin(t);         // back right
+
+  if (g_shiftClickAnim){
+    let t_shift = (performance.now() - g_startTime) / 1000;
+  }
+}
+
 function renderScene(){
-  //Keep all drawings in the same function for simplicity
-
-  var globalRotMat=new Matrix4().rotate(g_globalAngleY,0,1,0).rotate(g_globalAngleX, 1,0,0);
+  var globalRotMat = new Matrix4();
+  globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
+  globalRotMat.rotate(g_globalAngleX, 1, 0, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
-
-   // Clear <canvas>
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  //gl.clear(gl.COLOR_BUFFER_BIT);
 
-  //var len = g_shapesList.length;
-  //for(var i = 0; i < len; i++) {
-    //g_shapesList[i].render();
-  //}
-
-//body of horse
-  var body = new Cube();
+  if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
+  body.matrix.setIdentity();
   body.matrix.scale(1, .4, .4);
   body.matrix.translate(-.5, -.5, 0);
   body.render();
-  //horse rear
-// horse neck
-  var neck = new Cube();
+
+  if (!neck) neck = new Cube();
   neck.color = [0.49, 0.19, 0.0, 1.0];
-  neck.matrix.rotate(-45,0,0);
+  neck.matrix.setIdentity();
+  neck.matrix.rotate(-45,0,0,1);
   neck.matrix.translate(0,0.15,.05);
   neck.matrix.scale(0.3,0.6,0.3);
   neck.render();
-//horse head
-  var head = new Cube();
+
+  if (!head) head = new Cube();
   head.color = [0.49, 0.19, 0.0, 1.0];
+  head.matrix.setIdentity();
   head.matrix.translate(0.64, 0.18 ,0.05);
-  head.matrix.rotate(40,0,0);
+  head.matrix.rotate(40,0,0,1);
   head.matrix.scale(0.2,.3,.3);
   head.render();
 
-//horse leg 1
-  var leg1 = new Cube();
+  if (!leg1) leg1 = new Cube();
   leg1.color = [0.49, 0.19, 0.0, 1.0];
-  leg1.matrix.translate(.35,-.45,0);
+  leg1.matrix.setIdentity();
+  leg1.matrix.rotate(g_leg1Slide,0,0,1);
+  leg1.matrix.translate(.35,-.5,0);
   leg1.matrix.scale(0.15, .5, .15);
   leg1.render();
-//horse lower leg 1 will be used for animations
-  var l_leg1 = new Cube();
+
+  if (!l_leg1) l_leg1 = new Cube();
   l_leg1.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg1.matrix.translate(.365,-.65,0.02);
+  l_leg1.matrix = new Matrix4(leg1.matrix);
+  l_leg1.matrix.scale(1/0.15, 1/0.5, 1/0.15);
+  l_leg1.matrix.rotate(g_leg1Slide, 0,0,1);  
+  l_leg1.matrix.translate(0.02, -0.15, 0.02);  
   l_leg1.matrix.scale(0.12, .2, .12);
   l_leg1.render();
-//horse hoove 1
-  var hoove1 = new Cube();
-  hoove1.color = [.1,.1,.1,1];
-  hoove1.matrix.translate(.4,-.73,.02);
-  hoove1.matrix.scale(.13,.08,.13);
+
+  if (!hoove1) hoove1 = new Cube();
+  hoove1.color = [.1, .1, .1, 1];
+  hoove1.matrix = new Matrix4(l_leg1.matrix);
+  hoove1.matrix.scale(1/0.12, 1/0.2, 1/0.12);  
+  hoove1.matrix.translate(0.02, -0.08, 0);  
+  hoove1.matrix.scale(.13, .08, .13);
   hoove1.render();
-//cone hat
-  var cone_hat = new Cone();
+
+  if (!cone_hat) cone_hat = new Cone();
   cone_hat.color = [0.3,0.3,1, 1];
+  cone_hat.matrix.setIdentity();
   cone_hat.matrix.translate(.6,0.6,.13)
-  cone_hat.matrix.rotate(-30,0,0);
+  cone_hat.matrix.rotate(-30,0,0,1);
   cone_hat.matrix.scale(.13,.2,.13);
   cone_hat.render();
 
-
-//horse leg 2
-  var leg2 = new Cube();
+  if (!leg2) leg2 = new Cube();
   leg2.color = [0.49, 0.19, 0.0, 1.0];
-  leg2.matrix.translate(.35,-.45,.25);
+  leg2.matrix.setIdentity();
+  leg2.matrix.rotate(g_leg2Slide, 0, 0);
+  leg2.matrix.translate(.35,-.5,.25);
   leg2.matrix.scale(0.15, .5, .15);
   leg2.render();
-//horse lower leg 2
-  var l_leg2 = new Cube();
+
+  if (!l_leg2) l_leg2 = new Cube();
   l_leg2.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg2.matrix.translate(.365,-.65,.265);
+  l_leg2.matrix = new Matrix4(leg2.matrix);
+  l_leg2.matrix.scale(1/0.15, 1/0.5, 1/0.15);  
+  l_leg2.matrix.rotate(g_leg2Slide, 0,0,1);  
+  l_leg2.matrix.translate(.02,-.15,.02);
   l_leg2.matrix.scale(0.12, .2, .12);
   l_leg2.render();
-//horse hoove 2
-  var hoove2 = new Cube();
-  hoove2.color = [.1,.1,.1,1];
-  hoove2.matrix.translate(.4,-.73, .26);
-  hoove2.matrix.scale(.13,.08,.13);
+
+  if (!hoove2) hoove2 = new Cube();
+  hoove2.color = [.1, .1, .1, 1];
+  hoove2.matrix = new Matrix4(l_leg2.matrix);
+  hoove2.matrix.scale(1/0.12, 1/0.2, 1/0.12);  
+  hoove2.matrix.translate(0.02, -0.08, 0);  
+  hoove2.matrix.scale(.13, .08, .13);
   hoove2.render();
 
-//horse leg 3
-  var leg3 = new Cube();
+  if (!leg3) leg3 = new Cube();
   leg3.color = [0.49, 0.19, 0.0, 1.0];
-  leg3.matrix.translate(-.5,-.45,.25);
+  leg3.matrix.setIdentity();
+  leg3.matrix.rotate(g_leg3Slide, 0, 0,1);
+  leg3.matrix.translate(-.5,-.5,.25);
   leg3.matrix.scale(0.15, .5, .15);
   leg3.render();
-//horse lower leg 3
-  var l_leg3 = new Cube();
+
+  if (!l_leg3) l_leg3 = new Cube();
   l_leg3.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg3.matrix.translate(-.485,-.65,.265);
+  l_leg3.matrix = new Matrix4(leg3.matrix);
+  l_leg3.matrix.scale(1/0.15, 1/0.5, 1/0.15); 
+  l_leg3.matrix.rotate(g_leg3Slide, 0,0);   
+  l_leg3.matrix.translate(.02,-.15,.02);
   l_leg3.matrix.scale(0.12, .2, .12);
   l_leg3.render();
-//horse hoove 3
-  var hoove3 = new Cube();
-  hoove3.color = [.1,.1,.1,1];
-  hoove3.matrix.translate(-.45,-.73, .26);
-  hoove3.matrix.scale(.13,.08,.13);
+
+  if (!hoove3) hoove3 = new Cube();
+  hoove3.color = [.1, .1, .1, 1];
+  hoove3.matrix = new Matrix4(l_leg3.matrix);
+  hoove3.matrix.scale(1/0.12, 1/0.2, 1/0.12);  
+  hoove3.matrix.translate(0.02, -0.08, 0);  
+  hoove3.matrix.scale(.13, .08, .13);
   hoove3.render();
 
-
-//horse leg 4
-  var leg4 = new Cube();
+  if (!leg4) leg4 = new Cube();
   leg4.color = [0.49, 0.19, 0.0, 1.0];
-  leg4.matrix.translate(-.5,-.45,.0);
+  leg4.matrix.setIdentity();
+  leg4.matrix.rotate(g_leg4Slide, 0, 0,1);
+  leg4.matrix.translate(-.5,-.5,.0);
   leg4.matrix.scale(0.15, .5, .15);
   leg4.render();
-//horse lower leg 4
-  var l_leg3 = new Cube();
-  l_leg3.color = [0.49, 0.19, 0.0, 1.0];
-  l_leg3.matrix.translate(-.485,-.65, 0.015);
-  l_leg3.matrix.scale(0.12, .2, .12);
-  l_leg3.render();
-//horse hoove 4
-  var hoove4 = new Cube();
-  hoove4.color = [.1,.1,.1,1];
-  hoove4.matrix.translate(-.45,-.73, 0.01);
-  hoove4.matrix.scale(.13,.08,.13);
+
+  if (!l_leg4) l_leg4 = new Cube();
+  l_leg4.color = [0.49, 0.19, 0.0, 1.0];
+  l_leg4.matrix = new Matrix4(leg4.matrix);
+  l_leg4.matrix.scale(1/0.15, 1/0.5, 1/0.15);  
+  l_leg4.matrix.rotate(g_leg4Slide, 0,0,1);  
+  l_leg4.matrix.translate(.02,-.15,.02);
+  l_leg4.matrix.scale(0.12, .2, .12);
+  l_leg4.render();
+
+  if (!hoove4) hoove4 = new Cube();
+  hoove4.color = [.1, .1, .1, 1];
+  hoove4.matrix = new Matrix4(l_leg4.matrix);
+  hoove4.matrix.scale(1/0.12, 1/0.2, 1/0.12);  
+  hoove4.matrix.translate(0.02, -0.08, 0);  
+  hoove4.matrix.scale(.13, .08, .13);
   hoove4.render();
 
-//horse tail
-  var tail = new Cube();
+  if (!tail) tail = new Cube();
   tail.color = [0.2,0.2,0.2,1];
+  tail.matrix.setIdentity();
   tail.matrix.translate(-.2,-.45,0);
-  tail.matrix.rotate(-20,0,0);
+  tail.matrix.rotate(-20,0,0,1);
   tail.matrix.translate(-.5,0,0.15);
   tail.matrix.scale(.1,.5,.1);
   tail.render();
-//maybe make the back of the horse more curve by adding a rotated block.?
-//perhaps make it so the lower legs are translated a little bit so that it can look a litle curved
-//horse mane
-  var mane = new Cube();
+
+  if (!mane) mane = new Cube();
   mane.color = [0.2,0.2,0.2,1];
+  mane.matrix.setIdentity();
   mane.matrix.translate(.2,.3,0.15);
-  mane.matrix.rotate(-47,0,0);
+  mane.matrix.rotate(-47,0,0,1);
   mane.matrix.scale(0.1, .5, .1); 
   mane.render();
-//front mane
-  var f_mane = new Cube();
+
+  if (!f_mane) f_mane = new Cube();
   f_mane.color = [0.2,0.2,0.2,1];
+  f_mane.matrix.setIdentity();
   f_mane.matrix.translate(.65,.42,.12);
-  f_mane.matrix.rotate(35,0,0);
+  f_mane.matrix.rotate(35,0,0,1);
   f_mane.matrix.scale(.1, .2, .15);
   f_mane.render();
-//left ear
-  var l_ear = new Cube();
+
+  if (!l_ear) l_ear = new Cube();
   l_ear.color = [0.49, 0.19, 0.0, 1.0];
+  l_ear.matrix.setIdentity();
   l_ear.matrix.translate(0.60,.53,0.07);
-  l_ear.matrix.rotate(-52,0,0);
+  l_ear.matrix.rotate(-52,0,0,1);
   l_ear.matrix.scale(.05,.1,.05);
   l_ear.render();
-//front left ear
-  var fl_ear = new Cube();
+
+  if (!fl_ear) fl_ear = new Cube();
   fl_ear.color = [0.29, 0.09, 0.0, 1.0];
+  fl_ear.matrix.setIdentity();
   fl_ear.matrix.translate(0.64,.50,0.08);
-  fl_ear.matrix.rotate(-52,0,0);
+  fl_ear.matrix.rotate(-52,0,0,1);
   fl_ear.matrix.scale(.03,.07,.03);
   fl_ear.render();
-//right_ear
-  var r_ear = new Cube();
+
+  if (!r_ear) r_ear = new Cube();
   r_ear.color = [0.49, 0.19, 0.0, 1.0];
+  r_ear.matrix.setIdentity();
   r_ear.matrix.translate(0.60,.53,0.27);
-  r_ear.matrix.rotate(-52,0,0);
+  r_ear.matrix.rotate(-52,0,0,1);
   r_ear.matrix.scale(.05,.1,.05);
   r_ear.render();
-//front right ear
-  var fr_ear = new Cube();
+
+  if (!fr_ear) fr_ear = new Cube();
   fr_ear.color = [0.29, 0.09, 0.0, 1.0];
+  fr_ear.matrix.setIdentity();
   fr_ear.matrix.translate(0.64,.50,0.28);
-  fr_ear.matrix.rotate(-52,0,0);
+  fr_ear.matrix.rotate(-52,0,0,1);
   fr_ear.matrix.scale(.03,.07,.03);
   fr_ear.render();
 
-
-  /*
-  var body = new Cube();
-  body.color = [1.0, 0.0, 0.0, 1.0];
-  //remeber we write backwards, the scale is happening first the the translation
-  body.matrix.translate(-.25, -.75, 0.0);
-  body.matrix.rotate(-5,1,0,0);
-  body.matrix.scale(0.5, .3, .5); 
-  body.render();
-
-  //draw a left arm
-  var leftArm = new Cube();
-  leftArm.color = [1.0, 1.0, 0.0, 1.0];
-  leftArm.matrix.setTranslate(0, -.5, 0.0);
-  leftArm.matrix.rotate(-5,1,0,0);
-  leftArm.matrix.rotate(0,0,0,1);
-  leftArm.matrix.scale(0.25,.7,.5);
-  leftArm.matrix.translate(-.5,0,0);
-  leftArm.render();
-  //test box
-  var box = new Cube();
-  box.color = [1.0, 0, 1.0, 1.0];
-  box.matrix.translate(-.1,.1,.0,0);
-  box.matrix.rotate(-30,1,0,0);
-  box.matrix.scale(.2,.4,.2);
-  box.render();*/
-//left eye
-  var l_eye = new Cube();
+  if (!l_eye) l_eye = new Cube();
   l_eye.color = [1,1,1,1];
+  l_eye.matrix.setIdentity();
   l_eye.matrix.translate(0.65,.34,0.03);
-  l_eye.matrix.rotate(42,0,0);
+  l_eye.matrix.rotate(42,0,0,1);
   l_eye.matrix.scale(.07,.07,.02);
   l_eye.render();
-// right eye
-  var r_eye = new Cube();
+
+  if (!r_eye) r_eye = new Cube();
   r_eye.color = [1,1,1,1];
+  r_eye.matrix.setIdentity();
   r_eye.matrix.translate(0.65,.34,0.30);
-  r_eye.matrix.rotate(42,0,0);
+  r_eye.matrix.rotate(42,0,0,1);
   r_eye.matrix.scale(.07,.07,.07);
   r_eye.render();
-//left pupil
-  var l_pupil = new Cube();
+
+  if (!l_pupil) l_pupil = new Cube();
   l_pupil.color = [0.07,0.07,0.07,1.0];
+  l_pupil.matrix.setIdentity();
   l_pupil.matrix.translate(0.65,.34,0.01);
-  l_pupil.matrix.rotate(42,0,0);
+  l_pupil.matrix.rotate(42,0,0,1);
   l_pupil.matrix.scale(.05,.05,.02);
   l_pupil.render();
-//left pupil
-  var r_pupil = new Cube();
+
+  if (!r_pupil) r_pupil = new Cube();
   r_pupil.color = [0.07,0.07,0.07,1.0];
+  r_pupil.matrix.setIdentity();
   r_pupil.matrix.translate(0.65,.34,0.37);
-  r_pupil.matrix.rotate(42,0,0);
+  r_pupil.matrix.rotate(42,0,0,1);
   r_pupil.matrix.scale(.05,.05,.02);
   r_pupil.render();
-//mouth
-  var mouth = new Cube();
+
+  if (!mouth) mouth = new Cube();
   mouth.color = [.49, .19, .0, 1];
-  //mouth.color = [0,0,0,1];
+  mouth.matrix.setIdentity();
   mouth.matrix.translate(.77, 0.10,0.06);
-  mouth.matrix.rotate(40,0,0);
+  mouth.matrix.rotate(40,0,0,1);
   mouth.matrix.scale(.15,.15,.28);
   mouth.render();
-//bottom mouth
-  var bottom_mouth  = new Cube();
+
+  if (!bottom_mouth) bottom_mouth = new Cube();
   bottom_mouth.color = [.49, .19, .0, 1];
-  bottom_mouth.matrix.translate(0.6,0.16,0.13);
-  bottom_mouth.matrix.rotate(-50,0,0);
+  bottom_mouth.matrix.setIdentity();
+  bottom_mouth.matrix.translate(0.6,0.18,0.13);
+  bottom_mouth.matrix.rotate(g_mouthSlide,0,0,1);
   bottom_mouth.matrix.scale(.2,.05,.15);
   bottom_mouth.render();
-//tongue
-  var tongue = new Cube();
+
+  if (!tongue) tongue = new Cube();
   tongue.color = [.9,.6,.6,1];
-  tongue.matrix.translate(.65,.18,0.12);
-  tongue.matrix.rotate(-50,0,0);
+  tongue.matrix = new Matrix4(bottom_mouth.matrix);
+  tongue.matrix.scale(1/.2, 1/.05, 1/.15);
+  tongue.matrix.translate(0.0,.05,0.0);
   tongue.matrix.scale(.2,.02,.15);
-  tongue.render()
-//nose
-  var nose = new Cube();
+  tongue.render();
+
+  if (!nose) nose = new Cube();
   nose.color = [.29,0.05,0,1];
+  nose.matrix.setIdentity();
   nose.matrix.translate(.83,0.02,0.1);
-  nose.matrix.rotate(40,0,0);
+  nose.matrix.rotate(40,0,0,1);
   nose.matrix.scale(.15,.1,.2);
   nose.render();
 }

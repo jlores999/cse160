@@ -6,16 +6,19 @@
   </head>
 
   <body onload="main()">
-    <canvas id="webgl" width="600" height="600">
+    <canvas id="webgl" width="400" height="400">
     Please use a browser that supports "canvas"
     </canvas>
 
 
-
+    <div id="fps" style="position: absolute; top: 10px; left: 10px; color: white; font-size: 20px;">FPS: 0</div>
     <p>
     Camera Angle <input type="range" min="0" max="360" value="45" class="slider" id="angleSlide">
+    Leg <input type="range" min="-30" max="30" value="0" class = "sliders" id = "legSlide">
+    Mouth <input type="range" min="-100" max="-50" value="-50" class = "sliders" id = "mouthSlide">
+    <button type="button" id="On">ON</button>
+    <button type="button" id="Off">OFF</button>
 
-   
 
 
     <script src="../lib/webgl-utils.js"></script>

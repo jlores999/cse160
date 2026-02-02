@@ -21,14 +21,18 @@ class Triangle{
     drawTriangle([xy[0], xy[1], xy[0]+d, xy[1], xy[0], xy[1]+d]);
   }
 }
+ let vertexBuffer = null;
 
  function drawTriangle(vertices){
   var n = 3;
 
-  var vertexBuffer = gl.createBuffer();
+  //var vertexBuffer = gl.createBuffer();
   if (!vertexBuffer){
-    console.log("Failed to create buffer object");
-    return -1;
+    vertexBuffer = gl.createBuffer();
+    if (!vertexBuffer){
+      console.log("Failed to create buffer object");
+      return -1;
+    }
   }
   // Bind the buffer object to target
   gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
