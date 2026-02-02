@@ -113,9 +113,6 @@ var FSHADER_SOURCE =`
 
 
 function addActionsForHtmlUI(){
-  document.getElementById("legSlide").addEventListener('mousemove', function() {g_leg1Slide = this.value;});
-  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngleY = this.value;});
-  document.getElementById("mouthSlide").addEventListener('mousemove', function() {g_mouthSlide = this.value;});
   document.getElementById("On").onclick = function() {g_walkAnim = true;};
   document.getElementById("Off").onclick = function() {g_walkAnim = false};
 }
