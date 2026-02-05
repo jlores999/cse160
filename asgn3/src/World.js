@@ -189,14 +189,14 @@ function main() {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
   
   // Set projection matrix once
-  var projMat = new Matrix4();
-  projMat.setPerspective(60, canvas.width/canvas.height, 0.1, 100);
-  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+  //var projMat = new Matrix4();
+  //projMat.setPerspective(60, canvas.width/canvas.height, 0.1, 100);
+  //gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
   
   // Set view matrix once
-  var viewMat = new Matrix4();
-  viewMat.setLookAt(0, 0, 3, 0, 0, 0, 0, 1, 0);
-  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
+  //var viewMat = new Matrix4();
+  //viewMat.setLookAt(0, 0, 3, 0, 0, 0, 0, 1, 0);
+  //gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
   
   //renderScene();
   requestAnimationFrame(tick);
@@ -341,10 +341,18 @@ function updateAnimationAngles() {
 }
 
 function renderScene(){
-  var globalRotMat = new Matrix4();
-  globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
-  globalRotMat.rotate(g_globalAngleX, 1, 0, 0);
-  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+
+  var projMat=new Matrix4();
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+
+var viewMat=new Matrix4();
+gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
+
+var globalRotMat = new Matrix4();
+globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
+globalRotMat.rotate(g_globalAngleX, 1, 0, 0);
+gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!body) body = new Cube();
