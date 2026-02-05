@@ -20,10 +20,20 @@ var FSHADER_SOURCE =`
   varying vec2 v_UV;
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0; //name of texture object
+  uniform int u_whichTexture;
   void main(){
-    gl_FragColor = u_FragColor;
-    gl_FragColor = vec4(v_UV, 1.0,1.0);
-    gl_FragColor = texture2D(u_Sampler0, v_UV);
+    if (u_whichTexture == -2){ //Use color
+      gl_FragColor = u_FragColor;
+    }
+    else if (u_whichTexture == -1){ //Use debug UV
+      gl_FragColor = vec4(v_UV, 1.0,1.0);
+    }
+    else if (u_whichTexture == 0){ //Use texture0
+      gl_FragColor = texture2D(u_Sampler0, v_UV);
+    }
+    else{ //error
+      gl_FragColor = vec4(1,.2,.2,1);
+    }
   }`
 
 
@@ -46,6 +56,7 @@ let u_GlobalRotateMatrix;
 let u_ViewMatrix;
 let u_ProjectionMatrix;
 let u_Sampler0;
+let u_whichTexture;
 
  let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
  let g_selectedSize = 5.0;
@@ -126,27 +137,36 @@ let u_Sampler0;
   u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
   if (!u_ModelMatrix){
     console.log("Failed to get storage location of u_ModelMatrix");
+    return;
   }
 
   u_GlobalRotateMatrix = gl.getUniformLocation(gl.program, 'u_GlobalRotateMatrix');
   if (!u_GlobalRotateMatrix){
     console.log("Failed to get storage location of u_GlobalRotateMatrix");
+    return;
   }
 
   u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
   if (!u_ViewMatrix){
     console.log("Failed to get storage location of u_ViewMatrix");
+    return;
   }
 
   u_ProjectionMatrix = gl.getUniformLocation(gl.program, 'u_ProjectionMatrix');
   if (!u_ProjectionMatrix){
     console.log("failed to get location of u_ProjectionMatrix");
+    return;
   }
 
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
   if (!u_Sampler0) {
     console.log('Failed to get the storage location of u_Sampler');
-    return false;
+    return;
+  }
+  u_whichTexture = gl.getUniformLocation(gl.program, 'u_whichTexture');
+  if (!u_whichTexture){
+    console.log('failed to get location of u_whichTexture');
+    return;
   }
 
   var identityM = new Matrix4();
@@ -329,6 +349,7 @@ function renderScene(){
 
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
+  body.textureNum = 0;
   body.matrix.setIdentity();
   body.matrix.scale(1, .4, .4);
   body.matrix.translate(-.5, -.5, 0);
