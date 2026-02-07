@@ -41,6 +41,7 @@ var FSHADER_SOURCE =`
  let leg3, l_leg3, hoove3, leg4, l_leg4, hoove4, tail, mane, f_mane;
  let l_ear, fl_ear, r_ear, fr_ear, l_eye, r_eye, l_pupil, r_pupil;
  let mouth, bottom_mouth, tongue, nose;
+ let floor_plane;
 
  let canvas;
  let gl;
@@ -374,7 +375,14 @@ function renderScene(){
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
 
-gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+  if (!floor_plane) floor_plane = new Cube();
+  floor_plane.color = [1.0,0,0,1];
+  floor_plane.matrix.setIdentity();
+  floor_plane.textureNum = 0;
+  floor_plane.matrix.translate(-10,-.75,-10);
+  floor_plane.matrix.scale(20,0,20);
+  floor_plane.render();
 
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];

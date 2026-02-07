@@ -24,7 +24,7 @@ class Camera{
 		f.set(this.at);
 		f.sub(this.eye);
 		f.normalize();
-		f.mul(.1); //can change
+		f.mul(.5); //can change
 		this.eye.add(f);
 		this.at.add(f);
 		this.updateViewMatrix();
@@ -34,7 +34,7 @@ class Camera{
 		b.set(this.eye);
 		b.sub(this.at);
 		b.normalize();
-		b.mul(.1); //can change
+		b.mul(.5); //can change
 		this.eye.add(b);
 		this.at.add(b);
 		this.updateViewMatrix();
