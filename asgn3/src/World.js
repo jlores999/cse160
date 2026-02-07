@@ -340,24 +340,30 @@ function updateAnimationAngles() {
   }
 }
 
+var g_eye = [0,0,3];
+var g_at = [0,0,-100];
+var g_up = [0,1,0];
 function renderScene(){
 
-  var projMat=new Matrix4();
-  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+var projMat=new Matrix4();
+projMat.setPerspective(50, canvas.width/canvas.height, 1, 100); //dont change this
+gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
 var viewMat=new Matrix4();
+viewMat.setLookAt(g_eye[0], g_eye[1], g_eye[2] , g_at[0], g_at[1], g_at[2], g_up[0], g_up[1], g_up[2]); //changing the third arg moves you forward or backward
 gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
 
-var globalRotMat = new Matrix4();
-globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
-globalRotMat.rotate(g_globalAngleX, 1, 0, 0);
+var globalRotMat = new Matrix4().rotate(g_globalAngleY, 0,1,0);
+//globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
+//globalRotMat.rotate(g_globalAngleX, 1, 0, 0);
 gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
-  body.textureNum = 0;
+  body.textureNum = -2;
   body.matrix.setIdentity();
   body.matrix.scale(1, .4, .4);
   body.matrix.translate(-.5, -.5, 0);
