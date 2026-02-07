@@ -179,27 +179,18 @@ function addActionsForHtmlUI(){
   document.getElementById("On").onclick = function() {g_walkAnim = true;};
   document.getElementById("Off").onclick = function() {g_walkAnim = false};
 }
-
+let camera
 function main() {
+  //camera = new Camera();
   setupWebGL();
   connectVariablesToGSL();
   addActionsForHtmlUI();
   addMouseControl();
-
+  camera = new Camera();
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-  
-  // Set projection matrix once
-  //var projMat = new Matrix4();
-  //projMat.setPerspective(60, canvas.width/canvas.height, 0.1, 100);
-  //gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
-  
-  // Set view matrix once
-  //var viewMat = new Matrix4();
-  //viewMat.setLookAt(0, 0, 3, 0, 0, 0, 0, 1, 0);
-  //gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
-  
+    
   //renderScene();
   requestAnimationFrame(tick);
 }
@@ -343,37 +334,47 @@ function updateAnimationAngles() {
 }
 
 function keydown(ev){
+  if (ev.keyCode == 87){
+    camera.moveForward()
+  } else
   if (ev.keyCode == 65){
-    g_eye.elements[0] += .2;
+    camera.moveLeft();
   } else
   if (ev.keyCode == 68){
-    g_eye.elements[0] -= .2;
+    camera.moveRight();
+  } else
+  if (ev.keyCode == 83){
+    camera.moveBackward();
+  }else
+  if (ev.keyCode == 81){
+    camera.panLeft();
+  } else
+  if (ev.keyCode == 69){
+    camera.panRight();
   }
   renderScene();
   console.log(ev.keyCode);
 
 }
 
-var g_eye = new Vector3([0, 0, 3]);
-var g_at = new Vector3([0, 0, -100]);
-var g_up = new Vector3([0, 1, 0]);
+
 function renderScene(){
 
-var projMat=new Matrix4();
-projMat.setPerspective(50, canvas.width/canvas.height, 1, 100); //dont change this
-gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
+  var projMat=new Matrix4();
+  projMat.setPerspective(50, canvas.width/canvas.height, 1, 100); //dont change this
+  gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
-var viewMat=new Matrix4();
-viewMat.setLookAt(g_eye.elements[0], g_eye.elements[1], g_eye.elements[2], g_at.elements[0], g_at.elements[1], g_at.elements[2], g_up.elements[0], g_up.elements[1], g_up.elements[2]);
-gl.uniformMatrix4fv(u_ViewMatrix, false, viewMat.elements);
+//var viewMat=new Matrix4();
+//viewMat.setLookAt(g_eye.elements[0], g_eye.elements[1], g_eye.elements[2], g_at.elements[0], g_at.elements[1], g_at.elements[2], g_up.elements[0], g_up.elements[1], g_up.elements[2]);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, camera.viewMat.elements);
 
-var globalRotMat = new Matrix4().rotate(g_globalAngleY, 0,1,0);
+  var globalRotMat = new Matrix4().rotate(g_globalAngleY, 0,1,0);
 //globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
 //globalRotMat.rotate(g_globalAngleX, 1, 0, 0);
-gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
+  gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
 
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
