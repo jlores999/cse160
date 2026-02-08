@@ -20,6 +20,7 @@ var FSHADER_SOURCE =`
   varying vec2 v_UV;
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0; //name of texture object
+  uniform sampler2D u_Sampler1;
   uniform int u_whichTexture;
   void main(){
     if (u_whichTexture == -2){ //Use color
@@ -31,6 +32,9 @@ var FSHADER_SOURCE =`
     else if (u_whichTexture == 0){ //Use texture0
       gl_FragColor = texture2D(u_Sampler0, v_UV);
     }
+    else if (u_whichTexture == 1){
+      gl_FragColor = texture2D(u_Sampler1, v_UV);
+    }
     else{ //error
       gl_FragColor = vec4(1,.2,.2,1);
     }
@@ -41,7 +45,7 @@ var FSHADER_SOURCE =`
  let leg3, l_leg3, hoove3, leg4, l_leg4, hoove4, tail, mane, f_mane;
  let l_ear, fl_ear, r_ear, fr_ear, l_eye, r_eye, l_pupil, r_pupil;
  let mouth, bottom_mouth, tongue, nose;
- let floor_plane;
+ let floor_plane, sky;
 
  let canvas;
  let gl;
@@ -57,6 +61,7 @@ let u_GlobalRotateMatrix;
 let u_ViewMatrix;
 let u_ProjectionMatrix;
 let u_Sampler0;
+let u_Sampler1;
 let u_whichTexture;
 
  let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
@@ -161,7 +166,12 @@ let u_whichTexture;
 
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
   if (!u_Sampler0) {
-    console.log('Failed to get the storage location of u_Sampler');
+    console.log('Failed to get the storage location of u_Sampler0');
+    return;
+  }
+  u_Sampler1 = gl.getUniformLocation(gl.program, 'u_Sampler1');
+  if (!u_Sampler1) {
+    console.log('Failed to get the storage location of u_Sampler1');
     return;
   }
   u_whichTexture = gl.getUniformLocation(gl.program, 'u_whichTexture');
@@ -265,15 +275,23 @@ function convertCoordinatesEventToGL(ev){
 }
 
 function initTextures() {
-  var image = new Image();  // Create the image object
-  if (!image) {
+  var image0 = new Image();  // Create the image object
+  var image1 = new Image();
+  if (!image0) {
+    console.log('Failed to create the image object');
+    return false;
+  }
+  if (!image1) {
     console.log('Failed to create the image object');
     return false;
   }
   // Register the event handler to be called on loading an image
-  image.onload = function(){ sendImageToTEXTURE0(image); };
+  image0.onload = function(){ sendImageToTEXTURE0(image0); };
   // Tell the browser to load an image
-  image.src = 'sky.jpg';
+  image0.src = 'sky.jpg';
+
+  image1.onload = function(){ sendImageToTEXTURE1(image1);};
+  image1.src = 'grass.jpg';
   //add more texture loading
   return true;
 }
@@ -298,6 +316,32 @@ function sendImageToTEXTURE0(image) { //just replicate this function for more te
   
   // Set the texture unit 0 to the sampler
   gl.uniform1i(u_Sampler0, 0);
+  
+//  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  //gl.drawArrays(gl.TRIANGLE_STRIP, 0, n); // Draw the rectangle
+  console.log('finished load texture');
+}
+function sendImageToTEXTURE1(image) { //just replicate this function for more textures switch cases work too
+  var texture = gl.createTexture();   // Create a texture object
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit0
+  gl.activeTexture(gl.TEXTURE1);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 1 to the sampler
+  gl.uniform1i(u_Sampler1, 1);
   
 //  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 
@@ -379,10 +423,18 @@ function renderScene(){
   if (!floor_plane) floor_plane = new Cube();
   floor_plane.color = [1.0,0,0,1];
   floor_plane.matrix.setIdentity();
-  floor_plane.textureNum = 0;
+  floor_plane.textureNum = 1;
   floor_plane.matrix.translate(-10,-.75,-10);
   floor_plane.matrix.scale(20,0,20);
   floor_plane.render();
+
+  if (!sky) sky = new Cube();
+  sky.color = [1.0,0,0,1];
+  sky.matrix.setIdentity();
+  sky.textureNum = 0;
+  sky.matrix.scale(50,50,50);
+  sky.matrix.translate(-.5,-.5, -.5);
+  sky.render();
 
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
