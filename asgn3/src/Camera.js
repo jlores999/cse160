@@ -27,7 +27,7 @@ class Camera{
 		f.mul(.5); //can change
 		this.eye.add(f);
 		this.at.add(f);
-		this.updateViewMatrix();
+		//this.updateViewMatrix();
 	}
 	moveBackward(){
 		let b = new Vector3();
@@ -37,7 +37,7 @@ class Camera{
 		b.mul(.5); //can change
 		this.eye.add(b);
 		this.at.add(b);
-		this.updateViewMatrix();
+		//this.updateViewMatrix();
 	}
 	moveLeft(){
 		let l = new Vector3();
@@ -48,7 +48,7 @@ class Camera{
 		s.mul(.1);
 		this.eye.add(s);
 		this.at.add(s);
-		this.updateViewMatrix();
+		//this.updateViewMatrix();
 	}
 	moveRight(){
 		let r = new Vector3();
@@ -59,7 +59,7 @@ class Camera{
 		s.mul(.1);
 		this.eye.add(s);
 		this.at.add(s);
-		this.updateViewMatrix();
+		//this.updateViewMatrix();
 	}
 	panLeft(){
 		let l = new Vector3();
@@ -70,7 +70,7 @@ class Camera{
 		let l_prime = rotMat.multiplyVector3(l);
 		this.at.set(this.eye);
 		this.at.add(l_prime);
-		this.updateViewMatrix();
+		//this.updateViewMatrix();
 	}
 	panRight(){
 		let r = new Vector3();
@@ -81,7 +81,7 @@ class Camera{
 	    let r_prime = rotMat.multiplyVector3(r);
 	   	this.at.set(this.eye);
 		this.at.add(r_prime);
-		this.updateViewMatrix();
+		//this.updateViewMatrix();
 	}
 
 }
