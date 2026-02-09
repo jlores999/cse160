@@ -83,5 +83,27 @@ class Camera{
 		this.at.add(r_prime);
 	//	this.updateViewMatrix();
 	}
+	// Add these new methods to Camera class
+panWithAngle(angleY, angleX) {
+    // Horizontal rotation (left/right) - around Y axis
+    let forward = new Vector3();
+    forward.set(this.at);
+    forward.sub(this.eye);
+    
+    let rotMatY = new Matrix4();
+    rotMatY.setRotate(angleY, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+    let forward_prime = rotMatY.multiplyVector3(forward);
+    
+    // Vertical rotation (up/down) - around right vector
+    let right = Vector3.cross(forward_prime, this.up);
+    right.normalize();
+    
+    let rotMatX = new Matrix4();
+    rotMatX.setRotate(angleX, right.elements[0], right.elements[1], right.elements[2]);
+    forward_prime = rotMatX.multiplyVector3(forward_prime);
+    
+    this.at.set(this.eye);
+    this.at.add(forward_prime);
+}
 
 }

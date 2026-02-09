@@ -193,14 +193,15 @@ function addActionsForHtmlUI(){
   document.getElementById("On").onclick = function() {g_walkAnim = true;};
   document.getElementById("Off").onclick = function() {g_walkAnim = false};
 }
-let camera
+let camera;
 function main() {
   //camera = new Camera();
   setupWebGL();
   connectVariablesToGSL();
   addActionsForHtmlUI();
-  addMouseControl();
   camera = new Camera();
+  addMouseControl();
+  //camera = new Camera();
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -241,7 +242,7 @@ function tick(){
 }
 
 var g_shapesList = [];
-
+/*
 function addMouseControl(){
   canvas.onmousedown = function(ev){
     isDragging = true;
@@ -266,6 +267,24 @@ function addMouseControl(){
   canvas.onmouseup = function(ev) {
     isDragging = false;
   };
+}
+*/
+
+function addMouseControl(){
+  // Click to lock pointer
+  canvas.onclick = function() {
+    canvas.requestPointerLock();
+  };
+  
+  // Mouse movement handler
+  document.addEventListener('mousemove', function(ev) {
+    if (document.pointerLockElement === canvas) {
+      camera.panWithAngle(-ev.movementX * 0.2, -ev.movementY * 0.2);
+      camera.updateViewMatrix();
+    }
+
+  });
+  renderScene();
 }
 function convertCoordinatesEventToGL(ev){
   var x = ev.clientX; // x coordinate of a mouse pointer
@@ -405,36 +424,36 @@ function keydown(ev){
 
 }
 var g_map=[
-  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,1,1,1,1,1,1,10,1,10,1,10,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 
@@ -462,21 +481,25 @@ function drawMap(){
     wall.textureNum = -2;
   }
 
-  for (x=0; x<32; x++){
-    for(y=0; y<32; y++){
-      if(g_map[x][y]==1){
-        // Simple distance culling - only render cubes near camera
-        let dx = (x-4) - camera.eye.elements[0];
-        let dz = (y-4) - camera.eye.elements[2];
-        let dist = Math.sqrt(dx*dx + dz*dz);
+  // Group cubes by distance for better culling
+  const eyeX = camera.eye.elements[0];
+  const eyeZ = camera.eye.elements[2];
+  
+  for (let x=0; x<32; x++){
+    for(let y=0; y<32; y++){
+      if(g_map[x][y] >= 1){
+        wall_height = g_map[x][y];
+        // Calculate distance once
+        let dx = (x-16) - eyeX;
+        let dz = (y-16) - eyeZ;
+        let distSq = dx*dx + dz*dz;  // Use squared distance (faster, no sqrt)
         
-        if(dist > 15) continue;  // Skip cubes far from camera
+        if(distSq > 225) continue;  // 225 = 15*15
         
         wall.color = [0,0,0,1];
         wall.matrix.setIdentity();
         wall.matrix.translate(x-16, -.75, y-16);        
-        wall.matrix.scale(.4,.4,.4);
-        //wall.matrix.translate(x-4, -.75, y-4);
+        wall.matrix.scale(1,(1 * wall_height),1);
         wall.render();
       }
     }
@@ -501,15 +524,15 @@ function renderScene(){
 
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
- // drawMap();
+ drawMap();
 
 
   if (!floor_plane) floor_plane = new Cube();
   floor_plane.color = [1.0,0,0,1];
   floor_plane.matrix.setIdentity();
   floor_plane.textureNum = 1;
-  floor_plane.matrix.translate(-10,-.75,-10);
-  floor_plane.matrix.scale(20,0,20);
+  floor_plane.matrix.translate(-20,-.75,-20);
+  floor_plane.matrix.scale(70,0,70);
   floor_plane.render();
 
   if (!sky) sky = new Cube();
