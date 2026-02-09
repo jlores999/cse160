@@ -59,7 +59,7 @@ class Camera{
 		s.mul(.1);
 		this.eye.add(s);
 		this.at.add(s);
-		//this.updateViewMatrix();
+	//	this.updateViewMatrix();
 	}
 	panLeft(){
 		let l = new Vector3();
@@ -81,7 +81,7 @@ class Camera{
 	    let r_prime = rotMat.multiplyVector3(r);
 	   	this.at.set(this.eye);
 		this.at.add(r_prime);
-		//this.updateViewMatrix();
+	//	this.updateViewMatrix();
 	}
 
 }

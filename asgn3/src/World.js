@@ -91,6 +91,8 @@ let u_whichTexture;
  let g_l_leg4Slide = 0;
 
  let g_mouthSlide = -50;
+ let globalRotMat = new Matrix4();
+ let projMat = new Matrix4();
 
 
  //function setUpWebGL(){
@@ -398,7 +400,7 @@ function keydown(ev){
   if (ev.keyCode == 69){
     camera.panRight();
   }
-  //renderScene();
+  camera.updateViewMatrix();
   console.log(ev.keyCode);
 
 }
@@ -484,7 +486,7 @@ function drawMap(){
 
 function renderScene(){
 
-  var projMat=new Matrix4();
+  //var projMat=new Matrix4();
   projMat.setPerspective(50, canvas.width/canvas.height, 1, 100); //dont change this
   gl.uniformMatrix4fv(u_ProjectionMatrix, false, projMat.elements);
 
@@ -492,14 +494,14 @@ function renderScene(){
 //viewMat.setLookAt(g_eye.elements[0], g_eye.elements[1], g_eye.elements[2], g_at.elements[0], g_at.elements[1], g_at.elements[2], g_up.elements[0], g_up.elements[1], g_up.elements[2]);
   gl.uniformMatrix4fv(u_ViewMatrix, false, camera.viewMat.elements);
 
-  var globalRotMat = new Matrix4().rotate(g_globalAngleY, 0,1,0);
-//globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
+  //var globalRotMat = new Matrix4().rotate(g_globalAngleY, 0,1,0);
+ globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
 //globalRotMat.rotate(g_globalAngleX, 1, 0, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  drawMap();
+ // drawMap();
 
 
   if (!floor_plane) floor_plane = new Cube();
