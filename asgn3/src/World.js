@@ -545,7 +545,7 @@ function renderScene(){
   
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
-  body.textureNum = -2;
+  //body.textureNum = -2;
   body.matrix.setIdentity();
   body.matrix.scale(1, .4, .4);
   body.matrix.translate(-.5, -.5, 0);
