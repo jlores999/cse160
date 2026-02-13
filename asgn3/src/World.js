@@ -419,12 +419,18 @@ function keydown(ev){
   if (ev.keyCode == 69){
     camera.panRight();
   }
+  if (ev.keyCode == 16){
+    camera.deleteBlock();
+  }
+  if (ev.keyCode == 90){
+    camera.placeBlock();
+  }
   camera.updateViewMatrix();
   console.log(ev.keyCode);
 
 }
 var g_map=[
-  [1,1,1,1,1,1,1,1,1,10,1,10,1,10,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,1,1,1,1,1,1,1,1,10.8,1,10,1,10,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -478,7 +484,7 @@ function drawMap(){
 function drawMap(){
   if(!wall) {
     wall = new Cube();
-    wall.textureNum = -2;
+    //wall.textureNum = -2;
   }
 
   // Group cubes by distance for better culling
@@ -488,7 +494,11 @@ function drawMap(){
   for (let x=0; x<32; x++){
     for(let y=0; y<32; y++){
       if(g_map[x][y] >= 1){
-        wall_height = g_map[x][y];
+        wall_height = Math.trunc(g_map[x][y]/1);
+        tex_num = (g_map[x][y] % 1) * 10;
+        if (tex_num > 7){
+          tex_num = -2;
+        }
         // Calculate distance once
         let dx = (x-16) - eyeX;
         let dz = (y-16) - eyeZ;
@@ -497,6 +507,7 @@ function drawMap(){
         if(distSq > 225) continue;  // 225 = 15*15
         
         wall.color = [0,0,0,1];
+        wall.textureNum = tex_num;
         wall.matrix.setIdentity();
         wall.matrix.translate(x-16, -.75, y-16);        
         wall.matrix.scale(1,(1 * wall_height),1);

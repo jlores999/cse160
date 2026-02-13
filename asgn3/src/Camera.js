@@ -83,27 +83,94 @@ class Camera{
 		this.at.add(r_prime);
 	//	this.updateViewMatrix();
 	}
-	// Add these new methods to Camera class
-panWithAngle(angleY, angleX) {
-    // Horizontal rotation (left/right) - around Y axis
-    let forward = new Vector3();
-    forward.set(this.at);
-    forward.sub(this.eye);
-    
-    let rotMatY = new Matrix4();
-    rotMatY.setRotate(angleY, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
-    let forward_prime = rotMatY.multiplyVector3(forward);
-    
-    // Vertical rotation (up/down) - around right vector
-    let right = Vector3.cross(forward_prime, this.up);
-    right.normalize();
-    
-    let rotMatX = new Matrix4();
-    rotMatX.setRotate(angleX, right.elements[0], right.elements[1], right.elements[2]);
-    forward_prime = rotMatX.multiplyVector3(forward_prime);
-    
-    this.at.set(this.eye);
-    this.at.add(forward_prime);
-}
+	panWithAngle(angleY, angleX) {
+	    // Horizontal rotation (left/right) - around Y axis
+	    let forward = new Vector3();
+	    forward.set(this.at);
+	    forward.sub(this.eye);
+	    
+	    let rotMatY = new Matrix4();
+	    rotMatY.setRotate(angleY, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
+	    let forward_prime = rotMatY.multiplyVector3(forward);
+	    
+	    // Vertical rotation (up/down) - around right vector
+	    let right = Vector3.cross(forward_prime, this.up);
+	    right.normalize();
+	    
+	    let rotMatX = new Matrix4();
+	    rotMatX.setRotate(angleX, right.elements[0], right.elements[1], right.elements[2]);
+	    forward_prime = rotMatX.multiplyVector3(forward_prime);
+	    
+	    this.at.set(this.eye);
+	    this.at.add(forward_prime);
+	}
+	deleteBlock(){
+		let ray = new Vector3();
+		ray.set(this.at);
+		ray.sub(this.eye);
+		ray.normalize();
+		let maxDis = 10;
+		let stepSize = 0.1;
+		let steps = maxDis / stepSize;
+		//let currentPos = self.eye;
 
+		for (let i = 0; i < steps; i++){
+		    let currentPos = new Vector3();
+		    currentPos.set(this.eye);
+		    
+		    let offset = new Vector3();
+		    offset.set(ray);
+		    offset.mul(i * stepSize);
+		    
+		    currentPos.add(offset);
+		    //console.log(currentPos.elements[0]);
+			let x = Math.floor(currentPos.elements[0] + 16);
+			let z = Math.floor(currentPos.elements[2] + 16);
+			console.log(x, " ", z);
+			if (x < 0 || x > 31 || z < 0 || z > 31){
+				continue;
+			}
+			if (g_map[x][z] == 1){
+				console.log("found block");
+				g_map[x][z] = 0; 
+				break;
+			}
+
+		}
+	}
+
+	placeBlock(){
+		let ray = new Vector3();
+		ray.set(this.at);
+		ray.sub(this.eye);
+		ray.normalize();
+		let maxDis = 10;
+		let stepSize = 0.1;
+		let steps = maxDis / stepSize;
+		//let currentPos = self.eye;
+
+		for (let i = 0; i < steps; i++){
+		    let currentPos = new Vector3();
+		    currentPos.set(this.eye);
+		    
+		    let offset = new Vector3();
+		    offset.set(ray);
+		    offset.mul(i * stepSize);
+		    
+		    currentPos.add(offset);
+		    //console.log(currentPos.elements[0]);
+			let x = Math.floor(currentPos.elements[0] + 16);
+			let z = Math.floor(currentPos.elements[2] + 16);
+			console.log(x, " ", z);
+			if (x < 0 || x > 31 || z < 0 || z > 31){
+				continue;
+			}
+			if (g_map[x][z] == 0){
+				console.log("found empty space");
+				g_map[x][z] = 1; 
+				break;
+			}
+
+		}
+	}
 }
