@@ -27,8 +27,23 @@ class Camera{
 		f.mul(.5); //can change
 		this.eye.add(f);
 		this.at.add(f);
+		if(this.eye.elements[1] < 0){
+		    this.eye.elements[1] = 0;
+		}
+		if (this.eye.elements[0] < -16){
+		    this.eye.elements[0] = -16;
+		}
+		if (this.eye.elements[2] < -16){
+		    this.eye.elements[2] = -16;
+		}
+		if (this.eye.elements[0] > 16){
+		    this.eye.elements[0] = 16;
+		}
+		if (this.eye.elements[2] > 16){
+		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		}
 		//this.updateViewMatrix();
-	}
+}
 	moveBackward(){
 		let b = new Vector3();
 		b.set(this.eye);
@@ -37,6 +52,21 @@ class Camera{
 		b.mul(.5); //can change
 		this.eye.add(b);
 		this.at.add(b);
+		if(this.eye.elements[1] < 0){
+		    this.eye.elements[1] = 0;
+		}
+		if (this.eye.elements[0] < -16){
+		    this.eye.elements[0] = -16;
+		}
+		if (this.eye.elements[2] < -16){
+		    this.eye.elements[2] = -16;
+		}
+		if (this.eye.elements[0] > 16){
+		    this.eye.elements[0] = 16;
+		}
+		if (this.eye.elements[2] > 16){
+		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		}
 		//this.updateViewMatrix();
 	}
 	moveLeft(){
@@ -48,6 +78,21 @@ class Camera{
 		s.mul(.1);
 		this.eye.add(s);
 		this.at.add(s);
+		if(this.eye.elements[1] < 0){
+		    this.eye.elements[1] = 0;
+		}
+		if (this.eye.elements[0] < -16){
+		    this.eye.elements[0] = -16;
+		}
+		if (this.eye.elements[2] < -16){
+		    this.eye.elements[2] = -16;
+		}
+		if (this.eye.elements[0] > 16){
+		    this.eye.elements[0] = 16;
+		}
+		if (this.eye.elements[2] > 16){
+		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		}
 		//this.updateViewMatrix();
 	}
 	moveRight(){
@@ -59,6 +104,21 @@ class Camera{
 		s.mul(.1);
 		this.eye.add(s);
 		this.at.add(s);
+		if(this.eye.elements[1] < 0){
+		    this.eye.elements[1] = 0;
+		}
+		if (this.eye.elements[0] < -16){
+		    this.eye.elements[0] = -16;
+		}
+		if (this.eye.elements[2] < -16){
+		    this.eye.elements[2] = -16;
+		}
+		if (this.eye.elements[0] > 16){
+		    this.eye.elements[0] = 16;
+		}
+		if (this.eye.elements[2] > 16){
+		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		}
 	//	this.updateViewMatrix();
 	}
 	panLeft(){
@@ -181,7 +241,14 @@ class Camera{
 		if (g_map[x][z] >= 0){
 			console.log("block place");
 			g_map[x][z] += 1; 
-			t_map[x][z] = tex_num;
+			let newHeight = g_map[x][z];
+		
+			// Set texture for the new layer
+		if (newHeight == 1) t_map1[x][z] = tex_num;
+		else if (newHeight == 2) t_map2[x][z] = tex_num;
+		else if (newHeight == 3) t_map3[x][z] = tex_num;
+		else if (newHeight == 4) t_map4[x][z] = tex_num;
+				//t_map[x][z] = tex_num;
 			return;
 		}
 	}
