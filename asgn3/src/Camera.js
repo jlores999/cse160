@@ -165,41 +165,24 @@ class Camera{
 	}
 
 	placeBlock(){
-		let ray = new Vector3();
-		ray.set(this.at);
-		ray.sub(this.eye);
-		ray.normalize();
-		let maxDis = 10;
-		let stepSize = 0.1;
-		let steps = maxDis / stepSize;
-		//let currentPos = self.eye;
-
-		for (let i = 0; i < steps; i++){
-		    let currentPos = new Vector3();
-		    currentPos.set(this.eye);
-		    
-		    let offset = new Vector3();
-		    offset.set(ray);
-		    offset.mul(i * stepSize);
-		    
-		    currentPos.add(offset);
-		    //console.log(currentPos.elements[0]);
-			let x = Math.floor(currentPos.elements[0] + 16);
-			let z = Math.floor(currentPos.elements[2] + 16);
-			console.log(x, " ", z);
-			if (x < 0 || x > 31 || z < 0 || z > 31){
-				continue;
-			}
-			if (g_map[x][z] == 0){
-				console.log("found empty space");
-				g_map[x][z] = 1; 
-				break;
-			}
-			if (g_map[x][z] >= 1){
-				g_map[x][z] += g_map[x][z];
-				break;
-			}
-
+		let direction = new Vector3();
+		direction.set(this.at);
+		direction.sub(this.eye);
+		direction.normalize();
+		let cameraPos = new Vector3();
+		cameraPos.set(this.eye);
+		cameraPos.add(direction);
+		let x = Math.floor(cameraPos.elements[0] + 16);
+		let z = Math.floor(cameraPos.elements[2] + 16);
+		console.log(x, " ", z);
+		if (x < 0 || x > 31 || z < 0 || z > 31){
+			return;
+		}
+		if (g_map[x][z] >= 0){
+			console.log("block place");
+			g_map[x][z] += 1; 
+			t_map[x][z] = tex_num;
+			return;
 		}
 	}
 }

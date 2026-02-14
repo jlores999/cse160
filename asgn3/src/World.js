@@ -21,6 +21,12 @@ var FSHADER_SOURCE =`
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0; //name of texture object
   uniform sampler2D u_Sampler1;
+  uniform sampler2D u_Sampler2;
+  uniform sampler2D u_Sampler3;
+  uniform sampler2D u_Sampler4;
+  uniform sampler2D u_Sampler5;
+  uniform sampler2D u_Sampler6;
+  uniform sampler2D u_Sampler7;
   uniform int u_whichTexture;
   void main(){
     if (u_whichTexture == -2){ //Use color
@@ -34,6 +40,24 @@ var FSHADER_SOURCE =`
     }
     else if (u_whichTexture == 1){
       gl_FragColor = texture2D(u_Sampler1, v_UV);
+    }
+    else if (u_whichTexture == 2){
+      gl_FragColor = texture2D(u_Sampler2, v_UV);
+    }
+    else if (u_whichTexture == 3){
+      gl_FragColor = texture2D(u_Sampler3, v_UV);
+    }
+    else if (u_whichTexture == 4){
+      gl_FragColor = texture2D(u_Sampler4, v_UV);
+    }
+    else if (u_whichTexture == 5){
+      gl_FragColor = texture2D(u_Sampler5, v_UV);
+    }
+    else if (u_whichTexture == 6){
+      gl_FragColor = texture2D(u_Sampler6, v_UV);
+    }
+    else if (u_whichTexture == 7){
+      gl_FragColor = texture2D(u_Sampler7, v_UV);
     }
     else{ //error
       gl_FragColor = vec4(1,.2,.2,1);
@@ -63,6 +87,12 @@ let u_ViewMatrix;
 let u_ProjectionMatrix;
 let u_Sampler0;
 let u_Sampler1;
+let u_Sampler2;
+let u_Sampler3;
+let u_Sampler4;
+let u_Sampler5;
+let u_Sampler6;
+let u_Sampler7;
 let u_whichTexture;
 
  let g_selectedColor = [1.0, 1.0, 1.0, 1.0];
@@ -90,11 +120,12 @@ let u_whichTexture;
  let g_l_leg3Slide = 0;
  let g_l_leg4Slide = 0;
 
+
  let g_mouthSlide = -50;
  let globalRotMat = new Matrix4();
  let projMat = new Matrix4();
 
-
+ let texNum = 0;
  //function setUpWebGL(){
     // Retrieve <canvas> element
   //canvas = document.getElementById('webgl');
@@ -127,14 +158,7 @@ let u_whichTexture;
     console.log('Failed to get the storage location of a_UV');
     return;
   }
-  /*
-  u_Size = gl.getUniformLocation(gl.program, 'u_Size');
-  if (!u_Size){
-    console.log('Failed to get the storage location of u_Size');
-  }
-  */
-
-
+ 
   // Get the storage location of u_FragColor
   
   u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
@@ -177,6 +201,36 @@ let u_whichTexture;
     console.log('Failed to get the storage location of u_Sampler1');
     return;
   }
+  u_Sampler2 = gl.getUniformLocation(gl.program, 'u_Sampler2');
+  if (!u_Sampler2) {
+    console.log('Failed to get the storage location of u_Sampler1');
+    return;
+  }
+  u_Sampler3 = gl.getUniformLocation(gl.program, 'u_Sampler3');
+  if (!u_Sampler3) {
+    console.log('Failed to get the storage location of u_Sampler3');
+    return;
+  }
+  u_Sampler4 = gl.getUniformLocation(gl.program, 'u_Sampler4');
+  if (!u_Sampler4) {
+    console.log('Failed to get the storage location of u_Sampler4');
+    return;
+  }
+  u_Sampler5 = gl.getUniformLocation(gl.program, 'u_Sampler5');
+  if (!u_Sampler5) {
+    console.log('Failed to get the storage location of u_Sampler5');
+    return;
+  }
+  u_Sampler6 = gl.getUniformLocation(gl.program, 'u_Sampler6');
+  if (!u_Sampler6) {
+    console.log('Failed to get the storage location of u_Sampler6');
+    return;
+  }
+  u_Sampler7 = gl.getUniformLocation(gl.program, 'u_Sampler7');
+  if (!u_Sampler7) {
+    console.log('Failed to get the storage location of u_Sampler7');
+    return;
+  }
   u_whichTexture = gl.getUniformLocation(gl.program, 'u_whichTexture');
   if (!u_whichTexture){
     console.log('failed to get location of u_whichTexture');
@@ -191,7 +245,9 @@ let u_whichTexture;
 
 function addActionsForHtmlUI(){
   document.getElementById("On").onclick = function() {g_walkAnim = true;};
-  document.getElementById("Off").onclick = function() {g_walkAnim = false};
+  document.getElementById("Off").onclick = function() {g_walkAnim = false;};
+  document.getElementById("Save").onclick = function(){saved_map = structuredClone(g_map); saved_t = structuredClone(t_map);};
+  document.getElementById("Load").onclick = function(){g_map = structuredClone(saved_map); t_map = structuredClone(saved_t)};
 }
 let camera;
 function main() {
@@ -242,33 +298,6 @@ function tick(){
 }
 
 var g_shapesList = [];
-/*
-function addMouseControl(){
-  canvas.onmousedown = function(ev){
-    isDragging = true;
-    lastMouseX = ev.clientX;
-    lastMouseY = ev.clientY;
-  };
-  canvas.onmousemove = function(ev) {
-    if (isDragging) {
-      let deltaX = ev.clientX - lastMouseX;
-      let deltaY = ev.clientY - lastMouseY;
-      
-      g_globalAngleX += deltaY * 0.5;
-      g_globalAngleY += deltaX * 0.5;
-      
-      lastMouseX = ev.clientX;
-      lastMouseY = ev.clientY;
-      
-      renderScene();  // Add this line to re-render when dragging
-    }
-  };
-
-  canvas.onmouseup = function(ev) {
-    isDragging = false;
-  };
-}
-*/
 
 function addMouseControl(){
   // Click to lock pointer
@@ -299,22 +328,30 @@ function convertCoordinatesEventToGL(ev){
 function initTextures() {
   var image0 = new Image();  // Create the image object
   var image1 = new Image();
+  var image2 = new Image();
+
   if (!image0) {
-    console.log('Failed to create the image object');
+    console.log('Failed to create the image object 0');
     return false;
   }
   if (!image1) {
-    console.log('Failed to create the image object');
+    console.log('Failed to create the image object 1');
     return false;
   }
-  // Register the event handler to be called on loading an image
+  if (!image2) {
+    console.log('Failed to create the image object 2');
+    return false;
+  }
+
   image0.onload = function(){ sendImageToTEXTURE0(image0); };
-  // Tell the browser to load an image
   image0.src = 'sky.jpg';
 
   image1.onload = function(){ sendImageToTEXTURE1(image1);};
   image1.src = 'grass.jpg';
+
   //add more texture loading
+  image2.onload = function(){ sendImageToTEXTURE2(image2);};
+  image2.src = 'StoneBrick.jpg';
   return true;
 }
 
@@ -371,6 +408,30 @@ function sendImageToTEXTURE1(image) { //just replicate this function for more te
   console.log('finished load texture');
 }
 
+function sendImageToTEXTURE2(image) { //just replicate this function for more textures switch cases work too
+  var texture = gl.createTexture();   // Create a texture object
+  if (!texture) {
+    console.log('Failed to create the texture object');
+    return false;
+  }
+
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1); // Flip the image's y axis
+  // Enable texture unit0
+  gl.activeTexture(gl.TEXTURE2);
+  // Bind the texture object to the target
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+  // Set the texture parameters
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  // Set the texture image
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+  
+  // Set the texture unit 2 to the sampler
+  gl.uniform1i(u_Sampler2, 2);
+  
+  console.log('finished load texture');
+}
+
 function updateAnimationAngles() {
 
     if (g_shiftClickAnim) {
@@ -401,34 +462,50 @@ function updateAnimationAngles() {
 }
 
 function keydown(ev){
-  if (ev.keyCode == 87){
+  if (ev.keyCode == 87){ //w
     camera.moveForward()
   } else
-  if (ev.keyCode == 65){
+  if (ev.keyCode == 65){ //a
     camera.moveLeft();
   } else
-  if (ev.keyCode == 68){
+  if (ev.keyCode == 68){ // s
     camera.moveRight();
   } else
-  if (ev.keyCode == 83){
+  if (ev.keyCode == 83){ //d
     camera.moveBackward();
   }else
-  if (ev.keyCode == 81){
+  if (ev.keyCode == 81){ //q
     camera.panLeft();
   } else
-  if (ev.keyCode == 69){
+  if (ev.keyCode == 69){ //e
     camera.panRight();
   }
-  if (ev.keyCode == 16){
+  if (ev.keyCode == 16){ //left shift
     camera.deleteBlock();
   }
-  if (ev.keyCode == 90){
+  if (ev.keyCode == 90){ //z
     camera.placeBlock();
   }
+  if (ev.keyCode == 49){
+    tex_num = 1
+  }
+  if (ev.keyCode == 50){
+    tex_num = 2
+  }
+  if (ev.keyCode == 51){
+    tex_num = 3
+  }
+  if (ev.keyCode == 52){
+    tex_num = 4
+  }
+  if (ev.keyCode == 53){
+    tex_num = 5
+  }        
   camera.updateViewMatrix();
   console.log(ev.keyCode);
 
 }
+
 var g_map=[
   [1,1,4,4,4,4,4,4,4,4,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -498,6 +575,10 @@ var t_map =[
   [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
   [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
 ];
+
+var saved_map = structuredClone(g_map);
+
+var saved_t = structuredClone(t_map);
 
 function drawMap(){
   if(!wall) {
