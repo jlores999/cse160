@@ -104,7 +104,7 @@ class Camera{
 	    this.at.set(this.eye);
 	    this.at.add(forward_prime);
 	}
-	deleteBlock(){
+	/*deleteBlock(){
 		let ray = new Vector3();
 		ray.set(this.at);
 		ray.sub(this.eye);
@@ -130,13 +130,38 @@ class Camera{
 			if (x < 0 || x > 31 || z < 0 || z > 31){
 				continue;
 			}
-			if (g_map[x][z] == 1){
+			if (g_map[x][z] >= 1){
 				console.log("found block");
-				g_map[x][z] = 0; 
+				g_map[x][z] -= 1; 
 				break;
 			}
 
+		}*/
+	//}
+	deleteBlock(){
+		let direction = new Vector3();
+		direction.set(this.at);
+		direction.sub(this.eye);
+		direction.normalize();
+		let cameraPos = new Vector3();
+		cameraPos.set(this.eye);
+		cameraPos.add(direction);
+		let x = Math.floor(cameraPos.elements[0] + 16);
+		let z = Math.floor(cameraPos.elements[2] + 16);
+		console.log(x, " ", z);
+		if (x < 0 || x > 31 || z < 0 || z > 31){
+			return;
 		}
+		if (g_map[x][z] >= 1){
+			console.log("found block");
+			g_map[x][z] -= 1; 
+			return;
+		}
+		//if (g_map[x][z] >= 1){
+		//	g_map[x][z] += g_map[x][z];
+		//	return;
+		//}
+
 	}
 
 	placeBlock(){
@@ -168,6 +193,10 @@ class Camera{
 			if (g_map[x][z] == 0){
 				console.log("found empty space");
 				g_map[x][z] = 1; 
+				break;
+			}
+			if (g_map[x][z] >= 1){
+				g_map[x][z] += g_map[x][z];
 				break;
 			}
 
