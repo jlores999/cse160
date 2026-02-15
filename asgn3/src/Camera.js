@@ -28,19 +28,19 @@ class Camera{
 		this.eye.add(f);
 		this.at.add(f);
 		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0;
+		    this.eye.elements[1] = 0.3;
 		}
 		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -16;
+		    this.eye.elements[0] = -15.7;
 		}
 		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -16;
+		    this.eye.elements[2] = -15.7;
 		}
 		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 16;
+		    this.eye.elements[0] = 15.7;
 		}
 		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		    this.eye.elements[2] = 15.7;
 		}
 		//this.updateViewMatrix();
 }
@@ -53,19 +53,19 @@ class Camera{
 		this.eye.add(b);
 		this.at.add(b);
 		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0;
+		    this.eye.elements[1] = 0.3;
 		}
 		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -16;
+		    this.eye.elements[0] = -15.7;
 		}
 		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -16;
+		    this.eye.elements[2] = -15.7;
 		}
 		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 16;
+		    this.eye.elements[0] = 15.7;
 		}
 		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		    this.eye.elements[2] = 15.7;
 		}
 		//this.updateViewMatrix();
 	}
@@ -79,19 +79,19 @@ class Camera{
 		this.eye.add(s);
 		this.at.add(s);
 		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0;
+		    this.eye.elements[1] = 0.3;
 		}
 		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -16;
+		    this.eye.elements[0] = -15.7;
 		}
 		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -16;
+		    this.eye.elements[2] = -15.7;
 		}
 		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 16;
+		    this.eye.elements[0] = 15.7;
 		}
 		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		    this.eye.elements[2] = 15.7;
 		}
 		//this.updateViewMatrix();
 	}
@@ -105,19 +105,19 @@ class Camera{
 		this.eye.add(s);
 		this.at.add(s);
 		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0;
+		    this.eye.elements[1] = 0.3;
 		}
 		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -16;
+		    this.eye.elements[0] = -15.7;
 		}
 		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -16;
+		    this.eye.elements[2] = -15.7;
 		}
 		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 16;
+		    this.eye.elements[0] = 15.7;
 		}
 		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 16;  // Was 0, should be 16
+		    this.eye.elements[2] = 15.7;
 		}
 	//	this.updateViewMatrix();
 	}
@@ -164,40 +164,7 @@ class Camera{
 	    this.at.set(this.eye);
 	    this.at.add(forward_prime);
 	}
-	/*deleteBlock(){
-		let ray = new Vector3();
-		ray.set(this.at);
-		ray.sub(this.eye);
-		ray.normalize();
-		let maxDis = 10;
-		let stepSize = 0.1;
-		let steps = maxDis / stepSize;
-		//let currentPos = self.eye;
 
-		for (let i = 0; i < steps; i++){
-		    let currentPos = new Vector3();
-		    currentPos.set(this.eye);
-		    
-		    let offset = new Vector3();
-		    offset.set(ray);
-		    offset.mul(i * stepSize);
-		    
-		    currentPos.add(offset);
-		    //console.log(currentPos.elements[0]);
-			let x = Math.floor(currentPos.elements[0] + 16);
-			let z = Math.floor(currentPos.elements[2] + 16);
-			console.log(x, " ", z);
-			if (x < 0 || x > 31 || z < 0 || z > 31){
-				continue;
-			}
-			if (g_map[x][z] >= 1){
-				console.log("found block");
-				g_map[x][z] -= 1; 
-				break;
-			}
-
-		}*/
-	//}
 	deleteBlock(){
 		let direction = new Vector3();
 		direction.set(this.at);

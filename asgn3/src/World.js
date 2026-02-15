@@ -759,16 +759,17 @@ function renderScene(){
   floor_plane.color = [1.0,0,0,1];
   floor_plane.matrix.setIdentity();
   floor_plane.textureNum = 1;
-  floor_plane.matrix.translate(-20,-.75,-20);
-  floor_plane.matrix.scale(70,0,70);
+  floor_plane.matrix.translate(-16,-.75,-16);
+  floor_plane.matrix.scale(32,0,32);
   floor_plane.render();
 
   if (!sky) sky = new Cube();
   sky.color = [1.0,0,0,1];
   sky.matrix.setIdentity();
   sky.textureNum = 0;
-  sky.matrix.scale(50,50,50);
-  sky.matrix.translate(-.5,-.5, -.5);
+  //sky.matrix.scale(32,32,32);
+  sky.matrix.translate(-16,-.8, -16);
+  sky.matrix.scale(32,32,32);
   sky.render();
   
   if (!body) body = new Cube();
