@@ -544,10 +544,7 @@ function keydown(ev){
   }
   if (ev.keyCode == 52){
     tex_num = 4
-  }
-  if (ev.keyCode == 53){
-    tex_num = 5
-  }        
+  }     
   camera.updateViewMatrix();
   //console.log(ev.keyCode);
 

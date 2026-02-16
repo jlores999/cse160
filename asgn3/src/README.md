@@ -1,3 +1,6 @@
-I used an ai tool to help me find out how to draw equilateral triangles, the prompt I used was just copypasting this     drawTriangle([xy[0], xy[1], xy[0]+d, xy[1], xy[0], xy[1]+d]);
-and asking how to change it for equilateral.
+I used an ai tool to implement mouse movement, my code was used as an input and asked how I can implement control without explictly giving code. I then tried to implement it from there.
+The video playlist was also used for the first couple of bullet points.
+Additonal features I added that were not required was adding simple texture selection using 1,2,3,4 and that different texutres can appear in the same y axis (for example at x,1,z is texture 1, whilw at x,2,z, its texture 2). There is also some basic collision with the walls meaning you cant go past the wall border as it forces you to a nearby position if you attempt to past it.
+There is also a save load feature meaing that you can save the current state of the world and load it back up, however refreshing the page resets everything except the predefined map.
+The simple story here is that your horse ran off so you went off to find him, you eventually track him down to a pyramid like strcutre where he is looking at some weird image.
  
