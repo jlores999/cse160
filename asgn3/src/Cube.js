@@ -1,4 +1,3 @@
-
 class Cube {
   static vertexBuffer = null;
   static uvBuffer = null;
@@ -17,7 +16,6 @@ class Cube {
   }
   
   static initBuffers() {
-    // All vertices for a cube (36 vertices = 12 triangles * 3 vertices)
     const vertices = new Float32Array([
       // Front face
       0,0,0,  1,1,0,  1,0,0,
@@ -85,20 +83,18 @@ class Cube {
     gl.vertexAttribPointer(a_UV, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(a_UV);
     
-    // Front face (full brightness)
+    // Front face 
     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     
-    // Top face (90% brightness)
-    gl.uniform4f(u_FragColor, rgba[0]*.9, rgba[1]*.9, rgba[2]*.9, rgba[3]);
+    // Top face 
+
     gl.drawArrays(gl.TRIANGLES, 6, 6);
     
-    // Right + Back faces (80% brightness)
-    gl.uniform4f(u_FragColor, rgba[0]*.8, rgba[1]*.8, rgba[2]*.8, rgba[3]);
+    // Right + Back faces
     gl.drawArrays(gl.TRIANGLES, 12, 12);
     
-    // Left + Bottom faces (original brightness)
-    gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+    // Left + Bottom faces 
     gl.drawArrays(gl.TRIANGLES, 24, 12);
   }
 }

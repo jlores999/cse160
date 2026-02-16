@@ -1,9 +1,8 @@
 class Camera{
 	constructor(){
-		//create attributes
 		this.fov = 60
-		this.eye = new Vector3([0, 0, 3]);
-		this.at = new Vector3([0, 0, -1]);
+		this.eye = new Vector3([-15, 0.5, 0]);
+		this.at = new Vector3([-14, 0.5, 0]);
 		this.up = new Vector3([0, 1, 0]);
 
 		this.viewMat = new Matrix4();
@@ -42,7 +41,6 @@ class Camera{
 		if (this.eye.elements[2] > 16){
 		    this.eye.elements[2] = 15.7;
 		}
-		//this.updateViewMatrix();
 }
 	moveBackward(){
 		let b = new Vector3();
@@ -67,7 +65,6 @@ class Camera{
 		if (this.eye.elements[2] > 16){
 		    this.eye.elements[2] = 15.7;
 		}
-		//this.updateViewMatrix();
 	}
 	moveLeft(){
 		let l = new Vector3();
@@ -93,7 +90,6 @@ class Camera{
 		if (this.eye.elements[2] > 16){
 		    this.eye.elements[2] = 15.7;
 		}
-		//this.updateViewMatrix();
 	}
 	moveRight(){
 		let r = new Vector3();
@@ -119,7 +115,6 @@ class Camera{
 		if (this.eye.elements[2] > 16){
 		    this.eye.elements[2] = 15.7;
 		}
-	//	this.updateViewMatrix();
 	}
 	panLeft(){
 		let l = new Vector3();
@@ -130,7 +125,6 @@ class Camera{
 		let l_prime = rotMat.multiplyVector3(l);
 		this.at.set(this.eye);
 		this.at.add(l_prime);
-		//this.updateViewMatrix();
 	}
 	panRight(){
 		let r = new Vector3();
@@ -141,10 +135,8 @@ class Camera{
 	    let r_prime = rotMat.multiplyVector3(r);
 	   	this.at.set(this.eye);
 		this.at.add(r_prime);
-	//	this.updateViewMatrix();
 	}
 	panWithAngle(angleY, angleX) {
-	    // Horizontal rotation (left/right) - around Y axis
 	    let forward = new Vector3();
 	    forward.set(this.at);
 	    forward.sub(this.eye);
@@ -153,7 +145,6 @@ class Camera{
 	    rotMatY.setRotate(angleY, this.up.elements[0], this.up.elements[1], this.up.elements[2]);
 	    let forward_prime = rotMatY.multiplyVector3(forward);
 	    
-	    // Vertical rotation (up/down) - around right vector
 	    let right = Vector3.cross(forward_prime, this.up);
 	    right.normalize();
 	    
@@ -184,11 +175,6 @@ class Camera{
 			g_map[x][z] -= 1; 
 			return;
 		}
-		//if (g_map[x][z] >= 1){
-		//	g_map[x][z] += g_map[x][z];
-		//	return;
-		//}
-
 	}
 
 	placeBlock(){
@@ -210,12 +196,10 @@ class Camera{
 			g_map[x][z] += 1; 
 			let newHeight = g_map[x][z];
 		
-			// Set texture for the new layer
 		if (newHeight == 1) t_map1[x][z] = tex_num;
 		else if (newHeight == 2) t_map2[x][z] = tex_num;
 		else if (newHeight == 3) t_map3[x][z] = tex_num;
 		else if (newHeight == 4) t_map4[x][z] = tex_num;
-				//t_map[x][z] = tex_num;
 			return;
 		}
 	}
