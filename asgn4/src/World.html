@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Worldl</title>
+  </head>
+
+  <body onload="main()">
+    Juan Luis Lores
+    <p>
+    jlores@ucsc.edu
+    <p>
+    <canvas id="webgl" width="600" height="600">
+    Please use a browser that supports "canvas"
+    </canvas>
+
+
+    <div id="fps" style="position: absolute; top: 10px; right: 10px; color: black; font-size: 20px;">FPS: 0</div>
+    <p>
+    Animation Buttons:
+    <button type="button" id="On">ON</button>
+    <button type="button" id="Off">OFF</button>
+    <p>
+      <button type="button" id="Save">Save</button>
+    <button type="button" id="Load">Load</button>
+    <p>
+    Press 1 for Diamond, 2 for Stone Brick, 3 for Grass, 4 for Weird block.
+    <p>
+    Left Shift for deleting a block, z for adding a block
+
+
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+    <script src ="../lib/cuon-matrix-cse160.js"></script>
+    <script src="Points.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Circle.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Cone.js"></script>
+    <script src="Camera.js"></script>
+    <script src="World.js"></script>
+  </body>
+</html>
