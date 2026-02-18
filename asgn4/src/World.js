@@ -4,7 +4,9 @@ var VSHADER_SOURCE =`
   precision mediump float;
   attribute vec4 a_Position;
   attribute vec2 a_UV;
+  attribute vec3 a_Normal;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
@@ -12,12 +14,14 @@ var VSHADER_SOURCE =`
   void main(){
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
+    v_Normal = a_Normal;
   }`
 
 // Fragment shader program
 var FSHADER_SOURCE =`
   precision mediump float;
   varying vec2 v_UV;
+  varying vec3 v_Normal;
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0; //name of texture object
   uniform sampler2D u_Sampler1;
@@ -29,7 +33,10 @@ var FSHADER_SOURCE =`
   uniform sampler2D u_Sampler7;
   uniform int u_whichTexture;
   void main(){
-    if (u_whichTexture == -2){ //Use color
+    if (u_whichTexture == -3){
+      gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
+    }
+    else if (u_whichTexture == -2){ //Use color
       gl_FragColor = u_FragColor;
     }
     else if (u_whichTexture == -1){ //Use debug UV
@@ -81,6 +88,7 @@ var FSHADER_SOURCE =`
 
 
 let a_UV;
+let a_Normal;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
 let u_ViewMatrix;
@@ -119,6 +127,9 @@ let u_whichTexture;
  let g_l_leg2Slide = 0;
  let g_l_leg3Slide = 0;
  let g_l_leg4Slide = 0;
+
+ let yellowAngle = 0;
+ let g_normalOn = false;
 
 
  let g_mouthSlide = -50;
@@ -236,6 +247,10 @@ let u_whichTexture;
     console.log('failed to get location of u_whichTexture');
     return;
   }
+  a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
+  if (!a_Normal){
+    console.log('failed to get uniform location of a_Normal');
+  }
 
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
@@ -246,8 +261,10 @@ let u_whichTexture;
 function addActionsForHtmlUI(){
   document.getElementById("On").onclick = function() {g_walkAnim = true;};
   document.getElementById("Off").onclick = function() {g_walkAnim = false;};
-  document.getElementById("Save").onclick = function(){saved_map = structuredClone(g_map); saved_t1 = structuredClone(t_map1); saved_t2 = structuredClone(t_map2); saved_t3 = structuredClone(t_map3); saved_t4 = structuredClone(t_map4);};
-  document.getElementById("Load").onclick = function(){g_map = structuredClone(saved_map); t_map1 = structuredClone(saved_t1); t_map2 = structuredClone(saved_t2); t_map3 = structuredClone(saved_t3); t_map4 = structuredClone(saved_t4);};
+  document.getElementById("normalOn").onclick = function() {g_normalOn = true;};
+  document.getElementById("normalOff").onclick = function() {g_normalOn = false;};  
+  document.getElementById("yellowAngle").addEventListener('mouseup', function() { yellowAngle = this.value;});
+
 }
 let camera;
 function main() {
@@ -794,11 +811,12 @@ function renderScene(){
   if (!sky) sky = new Cube();
   sky.color = [.2,0.2,1,1];
   sky.matrix.setIdentity();
-  sky.textureNum = -2;
+  if (g_normalOn) sky.textureNum = -3;
+  //sky.textureNum = -2;
   sky.matrix.translate(-16,-.8, -16);
-  sky.matrix.scale(32,32,32);
+  sky.matrix.scale(20,20,20);
   sky.render();
-  
+  /*
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
   body.matrix.setIdentity();
@@ -1050,4 +1068,5 @@ function renderScene(){
   nose.matrix.rotate(40,0,0,1);
   nose.matrix.scale(.15,.1,.2);
   nose.render();
+  */
 }
