@@ -1,8 +1,8 @@
 class Camera{
 	constructor(){
 		this.fov = 60
-		this.eye = new Vector3([0, 0, 2]);
-		this.at = new Vector3([0, 0, -1]);
+		this.eye = new Vector3([0, -1, 2]);
+		this.at = new Vector3([0, -1, -1]);
 		this.up = new Vector3([0, 1, 0]);
 
 		this.viewMat = new Matrix4();
@@ -26,21 +26,7 @@ class Camera{
 		f.mul(.5); //can change
 		this.eye.add(f);
 		this.at.add(f);
-		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0.3;
-		}
-		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -15.7;
-		}
-		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -15.7;
-		}
-		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 15.7;
-		}
-		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 15.7;
-		}
+
 }
 	moveBackward(){
 		let b = new Vector3();
@@ -50,21 +36,7 @@ class Camera{
 		b.mul(.5); //can change
 		this.eye.add(b);
 		this.at.add(b);
-		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0.3;
-		}
-		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -15.7;
-		}
-		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -15.7;
-		}
-		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 15.7;
-		}
-		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 15.7;
-		}
+
 	}
 	moveLeft(){
 		let l = new Vector3();
@@ -75,21 +47,7 @@ class Camera{
 		s.mul(.1);
 		this.eye.add(s);
 		this.at.add(s);
-		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0.3;
-		}
-		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -15.7;
-		}
-		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -15.7;
-		}
-		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 15.7;
-		}
-		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 15.7;
-		}
+
 	}
 	moveRight(){
 		let r = new Vector3();
@@ -100,21 +58,6 @@ class Camera{
 		s.mul(.1);
 		this.eye.add(s);
 		this.at.add(s);
-		if(this.eye.elements[1] < 0){
-		    this.eye.elements[1] = 0.3;
-		}
-		if (this.eye.elements[0] < -16){
-		    this.eye.elements[0] = -15.7;
-		}
-		if (this.eye.elements[2] < -16){
-		    this.eye.elements[2] = -15.7;
-		}
-		if (this.eye.elements[0] > 16){
-		    this.eye.elements[0] = 15.7;
-		}
-		if (this.eye.elements[2] > 16){
-		    this.eye.elements[2] = 15.7;
-		}
 	}
 	panLeft(){
 		let l = new Vector3();

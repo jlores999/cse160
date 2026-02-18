@@ -77,7 +77,7 @@ var FSHADER_SOURCE =`
  let l_ear, fl_ear, r_ear, fr_ear, l_eye, r_eye, l_pupil, r_pupil;
  let mouth, bottom_mouth, tongue, nose;
  let floor_plane, sky;
- let wall;
+ let wall, sp;
 
  let canvas;
  let gl;
@@ -799,22 +799,29 @@ function renderScene(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
  drawMap();
 
+  if (!sp) sp = new Sphere();
+  if(g_normalOn) sp.textureNum = -3;
+  sp.matrix.setIdentity();
+  sp.matrix.translate(0,-1,-3);
+  sp.matrix.scale(1,1,1);
+  sp.render();
+
 
   if (!floor_plane) floor_plane = new Cube();
   floor_plane.color = [.1,.7,.1,1];
   floor_plane.matrix.setIdentity();
   floor_plane.textureNum = -2;
-  floor_plane.matrix.translate(-16,-.75,-16);
+  floor_plane.matrix.translate(0,1,-3);
   floor_plane.matrix.scale(32,0,32);
-  floor_plane.render();
+//  floor_plane.render();
 
   if (!sky) sky = new Cube();
   sky.color = [.2,0.2,1,1];
   sky.matrix.setIdentity();
   if (g_normalOn) sky.textureNum = -3;
   //sky.textureNum = -2;
-  sky.matrix.translate(-16,-.8, -16);
-  sky.matrix.scale(20,20,20);
+  sky.matrix.scale(-7, -7,-7);
+  sky.matrix.translate(-.5,-.3,-.5);
   sky.render();
   /*
   if (!body) body = new Cube();
