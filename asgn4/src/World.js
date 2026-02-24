@@ -144,7 +144,7 @@ let u_whichTexture;
  let g_l_leg3Slide = 0;
  let g_l_leg4Slide = 0;
 
- let yellowAngle = 0;
+
  let xSlide = 0;
  let ySlide = 0;
  let zSlide = 0;
@@ -289,7 +289,6 @@ function addActionsForHtmlUI(){
   document.getElementById("Off").onclick = function() {g_walkAnim = false;};
   document.getElementById("normalOn").onclick = function() {g_normalOn = true;};
   document.getElementById("normalOff").onclick = function() {g_normalOn = false;};  
-  document.getElementById("yellowAngle").addEventListener('mouseup', function() { yellowAngle = this.value; renderScene();});
   document.getElementById("xSlide").addEventListener('mousemove', function() { g_lightPos[0] = this.value/100; renderScene();});
   document.getElementById("ySlide").addEventListener('mousemove', function() { g_lightPos[1] = this.value/100; renderScene();});
   document.getElementById("zSlide").addEventListener('mousemove', function() { g_lightPos[2] = this.value/100; renderScene();});
@@ -553,6 +552,8 @@ function updateAnimationAngles() {
   if (g_shiftClickAnim){
     let t_shift = (performance.now() - g_startTime) / 1000;
   }
+
+  g_lightPos[0]= Math.cos(g_seconds);
 }
 
 function keydown(ev){
