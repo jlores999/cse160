@@ -7,6 +7,7 @@ var VSHADER_SOURCE =`
   attribute vec3 a_Normal;
   varying vec2 v_UV;
   varying vec3 v_Normal;
+  varying vec4 v_VertPos;
   uniform mat4 u_ModelMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
@@ -15,6 +16,7 @@ var VSHADER_SOURCE =`
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
     v_Normal = a_Normal;
+    v_VertPos = u_ModelMatrix * a_Position;
   }`
 
 // Fragment shader program
@@ -32,6 +34,8 @@ var FSHADER_SOURCE =`
   uniform sampler2D u_Sampler6;
   uniform sampler2D u_Sampler7;
   uniform int u_whichTexture;
+  uniform vec3 u_lightPos;
+  varying vec4 v_VertPos;
   void main(){
     if (u_whichTexture == -3){
       gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
@@ -69,6 +73,18 @@ var FSHADER_SOURCE =`
     else{ //error
       gl_FragColor = vec4(1,.2,.2,1);
     }
+    vec3 lightVector = vec3(v_VertPos) - u_lightPos;
+    float r = length(lightVector);
+    if (r<1.0){
+      gl_FragColor = vec4(1,0,0,1);
+    }
+    else if (r<2.0){
+      gl_FragColor = vec4(0,1,0,1);
+    }
+
+
+
+
   }`
 
 
@@ -77,7 +93,7 @@ var FSHADER_SOURCE =`
  let l_ear, fl_ear, r_ear, fr_ear, l_eye, r_eye, l_pupil, r_pupil;
  let mouth, bottom_mouth, tongue, nose;
  let floor_plane, sky;
- let wall, sp;
+ let wall, sp, light;
 
  let canvas;
  let gl;
@@ -129,6 +145,11 @@ let u_whichTexture;
  let g_l_leg4Slide = 0;
 
  let yellowAngle = 0;
+ let xSlide = 0;
+ let ySlide = 0;
+ let zSlide = 0;
+ let u_lightPos;
+ let g_lightPos =[0,0,0];
  let g_normalOn = false;
 
 
@@ -252,6 +273,11 @@ let u_whichTexture;
     console.log('failed to get uniform location of a_Normal');
   }
 
+  u_lightPos = gl.getUniformLocation(gl.program, 'u_lightPos');
+  if (!u_lightPos){
+      console.log('failed to get uniform location of u_lightPos');
+  }
+
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 
@@ -263,7 +289,11 @@ function addActionsForHtmlUI(){
   document.getElementById("Off").onclick = function() {g_walkAnim = false;};
   document.getElementById("normalOn").onclick = function() {g_normalOn = true;};
   document.getElementById("normalOff").onclick = function() {g_normalOn = false;};  
-  document.getElementById("yellowAngle").addEventListener('mouseup', function() { yellowAngle = this.value;});
+  document.getElementById("yellowAngle").addEventListener('mouseup', function() { yellowAngle = this.value; renderScene();});
+  document.getElementById("xSlide").addEventListener('mousemove', function() { g_lightPos[0] = this.value/100; renderScene();});
+  document.getElementById("ySlide").addEventListener('mousemove', function() { g_lightPos[1] = this.value/100; renderScene();});
+  document.getElementById("zSlide").addEventListener('mousemove', function() { g_lightPos[2] = this.value/100; renderScene();});
+ 
 
 }
 let camera;
@@ -797,10 +827,22 @@ function renderScene(){
 
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
- drawMap();
+
+  gl.uniform3f(u_lightPos,g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+ //drawMap();
+  if (!light) light = new Cube();
+  light.color = [2,2,0,1];
+  light.matrix.setIdentity();
+  light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+  light.matrix.scale(.2,.2,.2);
+  //light.matrix.translate(-.5,-.5,-.5);
+  light.render();
+
 
   if (!sp) sp = new Sphere();
   if(g_normalOn) sp.textureNum = -3;
+  else sp.textureNum = -1;
+  //sp.textureNum = -2;
   sp.matrix.setIdentity();
   sp.matrix.translate(0,-1,-3);
   sp.matrix.scale(1,1,1);
@@ -810,18 +852,18 @@ function renderScene(){
   if (!floor_plane) floor_plane = new Cube();
   floor_plane.color = [.1,.7,.1,1];
   floor_plane.matrix.setIdentity();
-  floor_plane.textureNum = -2;
+  floor_plane.textureNum = 1;
   floor_plane.matrix.translate(0,1,-3);
   floor_plane.matrix.scale(32,0,32);
 //  floor_plane.render();
 
   if (!sky) sky = new Cube();
-  sky.color = [.2,0.2,1,1];
+  sky.color = [.3,0.3,.3,1];
   sky.matrix.setIdentity();
   if (g_normalOn) sky.textureNum = -3;
-  //sky.textureNum = -2;
-  sky.matrix.scale(-7, -7,-7);
-  sky.matrix.translate(-.5,-.3,-.5);
+  else sky.textureNum = -2;
+  sky.matrix.scale(-10, -10,-10);
+  sky.matrix.translate(-.5,-.3,-.7);
   sky.render();
   /*
   if (!body) body = new Cube();

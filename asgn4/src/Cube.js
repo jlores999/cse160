@@ -119,13 +119,15 @@ class Cube {
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     
     // Top face 
-
+    gl.uniform4f(u_FragColor, rgba[0]*0.9, rgba[1]*0.9, rgba[2]*0.9, rgba[3]);
     gl.drawArrays(gl.TRIANGLES, 6, 6);
     
     // Right + Back faces
+      gl.uniform4f(u_FragColor, rgba[0]*0.8, rgba[1]*0.8, rgba[2]*0.8, rgba[3]);
     gl.drawArrays(gl.TRIANGLES, 12, 12);
     
     // Left + Bottom faces 
+        gl.uniform4f(u_FragColor, rgba[0]*0.8, rgba[1]*0.8, rgba[2]*0.8, rgba[3]);
     gl.drawArrays(gl.TRIANGLES, 24, 12);
   }
 }
