@@ -15,6 +15,7 @@ var VSHADER_SOURCE =`
   void main(){
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
+    //v_Normal = normalize(mat3(u_ModelMatrix) * a_Normal);
     v_Normal = a_Normal;
     v_VertPos = u_ModelMatrix * a_Position;
   }`
@@ -24,6 +25,7 @@ var FSHADER_SOURCE =`
   precision mediump float;
   varying vec2 v_UV;
   varying vec3 v_Normal;
+  uniform vec3 u_cameraPos;
   uniform vec4 u_FragColor;
   uniform sampler2D u_Sampler0; //name of texture object
   uniform sampler2D u_Sampler1;
@@ -73,18 +75,22 @@ var FSHADER_SOURCE =`
     else{ //error
       gl_FragColor = vec4(1,.2,.2,1);
     }
-    vec3 lightVector = vec3(v_VertPos) - u_lightPos;
+    vec3 lightVector = u_lightPos - vec3(v_VertPos);
     float r = length(lightVector);
-    if (r<1.0){
-      gl_FragColor = vec4(1,0,0,1);
-    }
-    else if (r<2.0){
-      gl_FragColor = vec4(0,1,0,1);
-    }
 
+    vec3 L = normalize(lightVector);
+    vec3 N = normalize(v_Normal);
+    float nDotL = max(dot(N,L), 0.0);
 
+    vec3 R = reflect(-L,N);
 
+    vec3 E = normalize(u_cameraPos - vec3(v_VertPos));
 
+    float specular = pow(max(dot(E,R), 0.0), 10.0);
+
+    vec3 diffuse = vec3(gl_FragColor) * nDotL * .7;
+    vec3 ambient = vec3(gl_FragColor) * 0.3;
+    gl_FragColor = vec4(specular+diffuse+ambient, 1.0);    
   }`
 
 
@@ -151,6 +157,7 @@ let u_whichTexture;
  let u_lightPos;
  let g_lightPos =[0,0,0];
  let g_normalOn = false;
+ let u_cameraPos;
 
 
  let g_mouthSlide = -50;
@@ -267,6 +274,10 @@ let u_whichTexture;
   if (!u_whichTexture){
     console.log('failed to get location of u_whichTexture');
     return;
+  }
+  u_cameraPos = gl.getUniformLocation(gl.program, 'u_cameraPos');
+  if (!u_cameraPos){
+    console.log('failed to get location of u_cameraPos');
   }
   a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
   if (!a_Normal){
@@ -830,19 +841,22 @@ function renderScene(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   gl.uniform3f(u_lightPos,g_lightPos[0], g_lightPos[1], g_lightPos[2]);
+
+  gl.uniform3f(u_cameraPos, camera.eye.elements[0], camera.eye.elements[1], camera.eye.elements[2]);
  //drawMap();
   if (!light) light = new Cube();
-  light.color = [2,2,0,1];
+  light.color = [3,3,0,1];
   light.matrix.setIdentity();
   light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
-  light.matrix.scale(.2,.2,.2);
+  light.matrix.scale(-.2,-.2,-.2);
   //light.matrix.translate(-.5,-.5,-.5);
   light.render();
 
 
   if (!sp) sp = new Sphere();
+  sp.color = [0,0,0,1];
   if(g_normalOn) sp.textureNum = -3;
-  else sp.textureNum = -1;
+  else sp.textureNum = 1;
   //sp.textureNum = -2;
   sp.matrix.setIdentity();
   sp.matrix.translate(0,-1,-3);
