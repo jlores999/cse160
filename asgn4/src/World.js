@@ -35,9 +35,19 @@ var FSHADER_SOURCE =`
   uniform sampler2D u_Sampler6;
   uniform sampler2D u_Sampler7;
   uniform int u_whichTexture;
+  //first light
   uniform vec3 u_lightPos;
   uniform bool u_lightOn;
   varying vec4 v_VertPos;
+
+  //spotlight
+
+  uniform vec3 u_spotLightPos;
+  uniform vec3 u_spotDirection;
+  uniform float u_spotCosineCutoff;
+  uniform float u_spotExponent;
+  uniform bool u_spotLightOn;
+
   void main(){
     if (u_whichTexture == -3){
       gl_FragColor = vec4((v_Normal+1.0)/2.0, 1.0);
@@ -75,31 +85,55 @@ var FSHADER_SOURCE =`
     else{ //error
       gl_FragColor = vec4(1,.2,.2,1);
     }
-    vec3 lightVector = u_lightPos - vec3(v_VertPos);
-    float r = length(lightVector);
-
-    vec3 L = normalize(lightVector);
-    vec3 N = normalize(v_Normal);
-    float nDotL = max(dot(N,L), 0.0);
-
-    vec3 R = reflect(-L,N);
-
-    vec3 E = normalize(u_cameraPos - vec3(v_VertPos));
-
-    float specular = pow(max(dot(E,R), 0.0), 10.0);
-
-    vec3 diffuse = vec3(gl_FragColor) * nDotL * 1.0;
-    vec3 ambient = vec3(gl_FragColor) * 0.3;
-    if (u_lightOn){
-      if (u_whichTexture != -2){
-        gl_FragColor = vec4(specular+diffuse+ambient, 1.0);
-      }  
-      else{
-        gl_FragColor = vec4(diffuse+ambient, 1.0);
-     }
-    }
-
+    if (u_lightOn || u_spotLightOn) {
+      vec3 N = normalize(v_Normal);
+      vec3 E = normalize(u_cameraPos - vec3(v_VertPos));
       
+      vec3 totalDiffuse = vec3(0.0);
+      vec3 totalSpecular = vec3(0.0);
+      
+      // First light (point light)
+      if (u_lightOn) {
+        vec3 lightVector1 = u_lightPos - vec3(v_VertPos);
+        vec3 L1 = normalize(lightVector1);
+        float nDotL1 = max(dot(N, L1), 0.0);
+        vec3 R1 = reflect(-L1, N);
+        float specular1 = pow(max(dot(E, R1), 0.0), 10.0);
+        
+        totalDiffuse += vec3(gl_FragColor) * nDotL1 * 1.0;
+        totalSpecular += vec3(specular1);
+      }
+      
+      // Second light (spotlight)
+      if (u_spotLightOn) {
+        vec3 lightVector2 = u_spotLightPos - vec3(v_VertPos);
+        vec3 L2 = normalize(lightVector2);
+        float spotFactor = 1.0;
+        if (u_spotCosineCutoff > 0.0) {
+          vec3 D = -normalize(u_spotDirection);
+          float spotCosine = dot(D, L2);
+          if (spotCosine >= u_spotCosineCutoff) {
+            spotFactor = pow(spotCosine, u_spotExponent);
+          } else {
+            spotFactor = 0.0;
+          }
+        }
+        float nDotL2 = max(dot(N, L2), 0.0) * spotFactor;
+        vec3 R2 = reflect(-L2, N);
+        float specular2 = pow(max(dot(E, R2), 0.0), 10.0) * spotFactor;
+        
+        totalDiffuse += vec3(gl_FragColor) * nDotL2 * 1.0;
+        totalSpecular += vec3(specular2);
+      }
+      
+      vec3 ambient = vec3(gl_FragColor) * 0.3;
+      
+      if (u_whichTexture != -2) {
+        gl_FragColor = vec4(totalSpecular + totalDiffuse + ambient, 1.0);
+      } else {
+        gl_FragColor = vec4(totalDiffuse + ambient, 1.0);
+      }
+    }  
   }`
 
 
@@ -162,8 +196,24 @@ let u_whichTexture;
  let g_lightPos =[0,0,0];
  let g_normalOn = false;
  let u_cameraPos;
+
+ //first light
  let u_lightOn;
  let g_lightOn;
+ 
+ //spotlight
+ let u_spotLightPos;
+ let u_spotDirection;
+ let u_spotCosineCutoff;
+ let u_spotExponent;
+ let u_spotLightOn;
+ let g_spotLightPos = [0,2,0];
+ let g_spotLightOn = false;
+ //let u_lightColor;
+
+ let g_spotDirection = [0, -1, 0];
+ let g_spotCosineCutoff = 0.5;
+ let g_spotExponent = 10.0;
  let g_mouthSlide = -50;
  let globalRotMat = new Matrix4();
  let projMat = new Matrix4();
@@ -295,7 +345,26 @@ let u_whichTexture;
   if (!u_lightPos){
       console.log('failed to get uniform location of u_lightPos');
   }
-
+  u_spotDirection = gl.getUniformLocation(gl.program, 'u_spotDirection');
+  if (!u_spotDirection){
+      console.log('failed to get uniform location of u_spotDirection');
+  }
+  u_spotCosineCutoff = gl.getUniformLocation(gl.program, 'u_spotCosineCutoff');
+  if (!u_spotCosineCutoff){
+      console.log('failed to get uniform location of u_spotCosineCutoff');
+  }
+  u_spotExponent = gl.getUniformLocation(gl.program, 'u_spotExponent');
+  if (!u_spotExponent){
+      console.log('failed to get uniform location of u_spotExponent');
+  }
+  u_spotLightPos = gl.getUniformLocation(gl.program, 'u_spotLightPos');
+  if (!u_spotLightPos) {
+      console.log('failed to get uniform location of u_spotLightPos');
+  }
+  u_spotLightOn = gl.getUniformLocation(gl.program, 'u_spotLightOn');
+  if (!u_spotLightOn) {
+      console.log('failed to get uniform location of u_spotLightOn');
+  }
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 
@@ -308,7 +377,9 @@ function addActionsForHtmlUI(){
   document.getElementById("normalOn").onclick = function() {g_normalOn = true;};
   document.getElementById("normalOff").onclick = function() {g_normalOn = false;}; 
   document.getElementById("lightOn").onclick = function() {g_lightOn = true;};
-  document.getElementById("lightOff").onclick = function() {g_lightOn = false;};   
+  document.getElementById("lightOff").onclick = function() {g_lightOn = false;}; 
+  document.getElementById("spotOn").onclick = function() {g_spotLightOn = true;};
+  document.getElementById("spotOff").onclick = function() {g_spotLightOn = false;};   
   document.getElementById("xSlide").addEventListener('mousemove', function() { g_lightPos[0] = this.value/100; renderScene();});
   document.getElementById("ySlide").addEventListener('mousemove', function() { g_lightPos[1] = this.value/100; renderScene();});
   document.getElementById("zSlide").addEventListener('mousemove', function() { g_lightPos[2] = this.value/100; renderScene();});
@@ -848,12 +919,16 @@ function renderScene(){
 
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
   gl.uniform3f(u_lightPos,g_lightPos[0], g_lightPos[1], g_lightPos[2]);
-
   gl.uniform3f(u_cameraPos, camera.eye.elements[0], camera.eye.elements[1], camera.eye.elements[2]);
-
   gl.uniform1i(u_lightOn, g_lightOn);
+
+  gl.uniform3f(u_spotLightPos, g_spotLightPos[0], g_spotLightPos[1], g_spotLightPos[2]);
+  gl.uniform3f(u_spotDirection, g_spotDirection[0], g_spotDirection[1], g_spotDirection[2]);
+  gl.uniform1f(u_spotCosineCutoff, g_spotCosineCutoff);
+  gl.uniform1f(u_spotExponent, g_spotExponent);
+  gl.uniform1i(u_spotLightOn, g_spotLightOn);
+
  //drawMap();
   if (!light) light = new Cube();
   light.color = [3,3,0,1];
