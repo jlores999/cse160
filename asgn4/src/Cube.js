@@ -8,6 +8,7 @@ class Cube {
     this.type='cube';
     this.color = [1.0, 1.0, 1.0, 1.0];
     this.matrix = new Matrix4();
+    this.normalMatrix = new Matrix4();
     this.textureNum = -2;
     
     if (!Cube.initialized) {
@@ -98,6 +99,10 @@ class Cube {
     
     gl.uniform1i(u_whichTexture, this.textureNum);
     gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
+
+    this.normalMatrix.setInverseOf(this.matrix);
+    this.normalMatrix.transpose();
+    gl.uniformMatrix4fv(u_NormalMatrix, false, this.normalMatrix.elements);
     
     // Bind vertex buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, Cube.vertexBuffer);

@@ -1,5 +1,3 @@
-// ColoredPoint.js (c) 2012 matsuda
-// Vertex shader program
 var VSHADER_SOURCE =`
   precision mediump float;
   attribute vec4 a_Position;
@@ -9,14 +7,15 @@ var VSHADER_SOURCE =`
   varying vec3 v_Normal;
   varying vec4 v_VertPos;
   uniform mat4 u_ModelMatrix;
+  uniform mat4 u_NormalMatrix;
   uniform mat4 u_GlobalRotateMatrix;
   uniform mat4 u_ViewMatrix;
   uniform mat4 u_ProjectionMatrix;
   void main(){
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
-    //v_Normal = normalize(mat3(u_ModelMatrix) * a_Normal);
-    v_Normal = a_Normal;
+    v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal,1)));
+    //v_Normal = a_Normal;
     v_VertPos = u_ModelMatrix * a_Position;
   }`
 
@@ -37,6 +36,7 @@ var FSHADER_SOURCE =`
   uniform sampler2D u_Sampler7;
   uniform int u_whichTexture;
   uniform vec3 u_lightPos;
+  uniform bool u_lightOn;
   varying vec4 v_VertPos;
   void main(){
     if (u_whichTexture == -3){
@@ -88,9 +88,18 @@ var FSHADER_SOURCE =`
 
     float specular = pow(max(dot(E,R), 0.0), 10.0);
 
-    vec3 diffuse = vec3(gl_FragColor) * nDotL * .7;
+    vec3 diffuse = vec3(gl_FragColor) * nDotL * 1.0;
     vec3 ambient = vec3(gl_FragColor) * 0.3;
-    gl_FragColor = vec4(specular+diffuse+ambient, 1.0);    
+    if (u_lightOn){
+      if (u_whichTexture != -2){
+        gl_FragColor = vec4(specular+diffuse+ambient, 1.0);
+      }  
+      else{
+        gl_FragColor = vec4(diffuse+ambient, 1.0);
+     }
+    }
+
+      
   }`
 
 
@@ -101,18 +110,17 @@ var FSHADER_SOURCE =`
  let floor_plane, sky;
  let wall, sp, light;
 
- let canvas;
- let gl;
- let a_Position;
- let u_FragColor;
- let u_Size;
-
-
+let canvas;
+let gl;
+let a_Position;
+let u_FragColor;
+let u_Size;
 
 let a_UV;
 let a_Normal;
 let u_ModelMatrix;
 let u_GlobalRotateMatrix;
+let u_NormalMatrix;
 let u_ViewMatrix;
 let u_ProjectionMatrix;
 let u_Sampler0;
@@ -140,17 +148,13 @@ let u_whichTexture;
  let g_walkAnim = false;
  let g_shiftClickAnim = false;
  let g_shiftClickStartTime = 0;
- let g_shiftClickDuration = 2000;  // 2 seconds in milliseconds
-
+ let g_shiftClickDuration = 2000;
  let g_leg2Slide = 0;
  let g_leg3Slide = 0;
  let g_leg4Slide = 0;
-
  let g_l_leg2Slide = 0;
  let g_l_leg3Slide = 0;
  let g_l_leg4Slide = 0;
-
-
  let xSlide = 0;
  let ySlide = 0;
  let zSlide = 0;
@@ -158,16 +162,12 @@ let u_whichTexture;
  let g_lightPos =[0,0,0];
  let g_normalOn = false;
  let u_cameraPos;
-
-
+ let u_lightOn;
+ let g_lightOn;
  let g_mouthSlide = -50;
  let globalRotMat = new Matrix4();
  let projMat = new Matrix4();
-
  let tex_num = 0;
- //function setUpWebGL(){
-    // Retrieve <canvas> element
-  //canvas = document.getElementById('webgl');
 
  function setupWebGL(){
   canvas = document.getElementById('webgl');
@@ -197,9 +197,7 @@ let u_whichTexture;
     console.log('Failed to get the storage location of a_UV');
     return;
   }
- 
-  // Get the storage location of u_FragColor
-  
+
   u_FragColor = gl.getUniformLocation(gl.program, 'u_FragColor');
   if (!u_FragColor) {
     console.log('Failed to get the storage location of u_FragColor');
@@ -228,6 +226,11 @@ let u_whichTexture;
   if (!u_ProjectionMatrix){
     console.log("failed to get location of u_ProjectionMatrix");
     return;
+  }
+  u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
+  if (!u_NormalMatrix){
+    console.log("failed to get location of u_NormalMatrix");
+    return;    
   }
 
   u_Sampler0 = gl.getUniformLocation(gl.program, 'u_Sampler0');
@@ -279,6 +282,10 @@ let u_whichTexture;
   if (!u_cameraPos){
     console.log('failed to get location of u_cameraPos');
   }
+  u_lightOn = gl.getUniformLocation(gl.program, 'u_lightOn');
+  if (!u_lightOn){
+    console.log('failed to get location of u_cameraPos');
+  }
   a_Normal = gl.getAttribLocation(gl.program, 'a_Normal');
   if (!a_Normal){
     console.log('failed to get uniform location of a_Normal');
@@ -299,7 +306,9 @@ function addActionsForHtmlUI(){
   document.getElementById("On").onclick = function() {g_walkAnim = true;};
   document.getElementById("Off").onclick = function() {g_walkAnim = false;};
   document.getElementById("normalOn").onclick = function() {g_normalOn = true;};
-  document.getElementById("normalOff").onclick = function() {g_normalOn = false;};  
+  document.getElementById("normalOff").onclick = function() {g_normalOn = false;}; 
+  document.getElementById("lightOn").onclick = function() {g_lightOn = true;};
+  document.getElementById("lightOff").onclick = function() {g_lightOn = false;};   
   document.getElementById("xSlide").addEventListener('mousemove', function() { g_lightPos[0] = this.value/100; renderScene();});
   document.getElementById("ySlide").addEventListener('mousemove', function() { g_lightPos[1] = this.value/100; renderScene();});
   document.getElementById("zSlide").addEventListener('mousemove', function() { g_lightPos[2] = this.value/100; renderScene();});
@@ -843,6 +852,8 @@ function renderScene(){
   gl.uniform3f(u_lightPos,g_lightPos[0], g_lightPos[1], g_lightPos[2]);
 
   gl.uniform3f(u_cameraPos, camera.eye.elements[0], camera.eye.elements[1], camera.eye.elements[2]);
+
+  gl.uniform1i(u_lightOn, g_lightOn);
  //drawMap();
   if (!light) light = new Cube();
   light.color = [3,3,0,1];
@@ -856,7 +867,7 @@ function renderScene(){
   if (!sp) sp = new Sphere();
   sp.color = [0,0,0,1];
   if(g_normalOn) sp.textureNum = -3;
-  else sp.textureNum = 1;
+  else sp.textureNum = 0;
   //sp.textureNum = -2;
   sp.matrix.setIdentity();
   sp.matrix.translate(0,-1,-3);
@@ -870,7 +881,7 @@ function renderScene(){
   floor_plane.textureNum = 1;
   floor_plane.matrix.translate(0,1,-3);
   floor_plane.matrix.scale(32,0,32);
-//  floor_plane.render();
+  floor_plane.render();
 
   if (!sky) sky = new Cube();
   sky.color = [.3,0.3,.3,1];
@@ -880,7 +891,7 @@ function renderScene(){
   sky.matrix.scale(-10, -10,-10);
   sky.matrix.translate(-.5,-.3,-.7);
   sky.render();
-  /*
+  
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
   body.matrix.setIdentity();
@@ -1132,5 +1143,4 @@ function renderScene(){
   nose.matrix.rotate(40,0,0,1);
   nose.matrix.scale(.15,.1,.2);
   nose.render();
-  */
 }
