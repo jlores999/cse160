@@ -121,6 +121,7 @@ class Cube {
     
     // Front face 
     gl.uniform4f(u_FragColor, rgba[0], rgba[1], rgba[2], rgba[3]);
+    gl.uniform4fv(u_FragColor, this.color);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     
     // Top face 

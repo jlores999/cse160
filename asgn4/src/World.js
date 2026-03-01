@@ -39,6 +39,7 @@ var FSHADER_SOURCE =`
   uniform vec3 u_lightPos;
   uniform bool u_lightOn;
   varying vec4 v_VertPos;
+  uniform vec3 u_lightColor;
 
   //spotlight
 
@@ -100,7 +101,8 @@ var FSHADER_SOURCE =`
         vec3 R1 = reflect(-L1, N);
         float specular1 = pow(max(dot(E, R1), 0.0), 10.0);
         
-        totalDiffuse += vec3(gl_FragColor) * nDotL1 * 1.0;
+       // totalDiffuse += vec3(gl_FragColor) * nDotL1 * 1.0;
+        totalDiffuse += u_lightColor * nDotL1 * .3;
         totalSpecular += vec3(specular1);
       }
       
@@ -122,7 +124,8 @@ var FSHADER_SOURCE =`
         vec3 R2 = reflect(-L2, N);
         float specular2 = pow(max(dot(E, R2), 0.0), 10.0) * spotFactor;
         
-        totalDiffuse += vec3(gl_FragColor) * nDotL2 * 1.0;
+        //totalDiffuse += vec3(gl_FragColor) * nDotL2 * 1.0;
+        totalDiffuse += u_lightColor * nDotL2 * 1.0;
         totalSpecular += vec3(specular2);
       }
       
@@ -365,6 +368,10 @@ let u_whichTexture;
   if (!u_spotLightOn) {
       console.log('failed to get uniform location of u_spotLightOn');
   }
+  u_lightColor = gl.getUniformLocation(gl.program, 'u_lightColor');
+  if (!u_lightColor) {
+      console.log('failed to get uniform location of u_spotLightOn');
+  }
   var identityM = new Matrix4();
   gl.uniformMatrix4fv(u_ModelMatrix, false, identityM.elements);
 
@@ -383,20 +390,25 @@ function addActionsForHtmlUI(){
   document.getElementById("xSlide").addEventListener('mousemove', function() { g_lightPos[0] = this.value/100; renderScene();});
   document.getElementById("ySlide").addEventListener('mousemove', function() { g_lightPos[1] = this.value/100; renderScene();});
   document.getElementById("zSlide").addEventListener('mousemove', function() { g_lightPos[2] = this.value/100; renderScene();});
+  document.getElementById("redSlide").addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100;});
+  document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
+  document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
  
 
 }
 let camera;
+let dragon;
 function main() {
   setupWebGL();
   connectVariablesToGSL();
   addActionsForHtmlUI();
   camera = new Camera();
+  dragon = new Model(gl, "bunny.obj");
+
   addMouseControl();
   document.onkeydown = keydown;
   initTextures();
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    
   requestAnimationFrame(tick);
 }
 
@@ -921,6 +933,7 @@ function renderScene(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.uniform3f(u_lightPos,g_lightPos[0], g_lightPos[1], g_lightPos[2]);
   gl.uniform3f(u_cameraPos, camera.eye.elements[0], camera.eye.elements[1], camera.eye.elements[2]);
+  gl.uniform3f(u_lightColor, g_selectedColor[0], g_selectedColor[1], g_selectedColor[2]);
   gl.uniform1i(u_lightOn, g_lightOn);
 
   gl.uniform3f(u_spotLightPos, g_spotLightPos[0], g_spotLightPos[1], g_spotLightPos[2]);
@@ -931,12 +944,15 @@ function renderScene(){
 
  //drawMap();
   if (!light) light = new Cube();
-  light.color = [3,3,0,1];
+  light.color = [g_selectedColor[0],g_selectedColor[1],g_selectedColor[2],1];
   light.matrix.setIdentity();
   light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
   light.matrix.scale(-.2,-.2,-.2);
   //light.matrix.translate(-.5,-.5,-.5);
   light.render();
+
+  //if(!dragon) dragon = new Model(gl, "dragon.obj");
+  //dragon.render(gl, gl.program);
 
 
   if (!sp) sp = new Sphere();
