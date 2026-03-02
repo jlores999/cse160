@@ -33,15 +33,15 @@ class Sphere {
         var p3 = [Math.sin(t)*Math.cos(r+dd), Math.sin(t)*Math.sin(r+dd), Math.cos(t)];
         var p4 = [Math.sin(t+dd)*Math.cos(r+dd), Math.sin(t+dd)*Math.sin(r+dd), Math.cos(t+dd)];
         
-        // First triangle
-        vertices.push(...p1, ...p2, ...p4);//change this p1[0]...p4[3]
-        normals.push(...p1, ...p2, ...p4);  // For sphere, normal = position
-        //uvs.push(0,0, 0,0, 0,0);
+
+        vertices.push(p1[0],p1[1],p1[2], p2[0],p2[1],p2[2], p4[0], p4[1], p4[2]);
+        normals.push(p1[0],p1[1],p1[2], p2[0],p2[1],p2[2], p4[0], p4[1], p4[2]);
+
               uvs.push(r/(2*Math.PI), t/Math.PI,  r/(2*Math.PI), (t+dd)/Math.PI,  (r+dd)/(2*Math.PI), (t+dd)/Math.PI);
-        // Second triangle
-        vertices.push(...p1, ...p4, ...p3);
-        normals.push(...p1, ...p4, ...p3);
-        //uvs.push(0,0, 0,0, 0,0);
+
+        vertices.push(p1[0],p1[1],p1[2], p4[0], p4[1], p4[2], p3[0], p3[1], p3[2]);
+        normals.push(p1[0],p1[1],p1[2], p4[0], p4[1], p4[2], p3[0], p3[1], p3[2]);
+
               uvs.push(r/(2*Math.PI), t/Math.PI,  (r+dd)/(2*Math.PI), (t+dd)/Math.PI,  (r+dd)/(2*Math.PI), t/Math.PI);
       }
     }

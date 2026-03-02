@@ -103,7 +103,7 @@ var FSHADER_SOURCE =`
         float specular1 = pow(max(dot(E, R1), 0.0), 10.0);
         
        // totalDiffuse += vec3(gl_FragColor) * nDotL1 * 1.0;
-        totalDiffuse += u_lightColor * nDotL1 * .3;
+        totalDiffuse += u_lightColor * nDotL1 * .7;
         totalSpecular += vec3(specular1);
       }
       
@@ -971,11 +971,11 @@ function renderScene(){
   else sp.textureNum = 1;
   //sp.textureNum = -2;
   sp.matrix.setIdentity();
-  sp.matrix.translate(-1.5,-1,-3);
+  sp.matrix.translate(-1.5,-1,-0.5);
   sp.matrix.scale(1,1,1);
   sp.render();
 
-
+/*
   if (!floor_plane) floor_plane = new Cube();
   floor_plane.color = [.1,.7,.1,1];
   floor_plane.matrix.setIdentity();
@@ -983,17 +983,16 @@ function renderScene(){
   floor_plane.matrix.translate(0,1,-3);
   floor_plane.matrix.scale(32,0,32);
   //floor_plane.render();
+  */
 
-  //gl.disable(gl.CULL_FACE);
   if (!sky) sky = new Cube();
   sky.color = [.3,0.3,.7,1];
   sky.matrix.setIdentity();
   if (g_normalOn) sky.textureNum = -3;
   else sky.textureNum = -2;
-  sky.matrix.scale(-10, -10,-10);
-  sky.matrix.translate(-.5,-.2,-.7);
+  sky.matrix.scale(-5, -5,-5);
+  sky.matrix.translate(-.5,-.2, -.7);
   sky.render();
- // gl.enable(gl.CULL_FACE);
   
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
@@ -1246,6 +1245,4 @@ function renderScene(){
   nose.matrix.rotate(40,0,0,1);
   nose.matrix.scale(.15,.1,.2);
   nose.render();
-
-  //dragon.render(gl, gl.program);
 }
