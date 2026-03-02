@@ -14,7 +14,8 @@ var VSHADER_SOURCE =`
   void main(){
     gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_GlobalRotateMatrix * u_ModelMatrix * a_Position;
     v_UV = a_UV;
-    v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal,1)));
+    //v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal,1)));
+    v_Normal = normalize(vec3(u_NormalMatrix * vec4(a_Normal, 0.0)));
     //v_Normal = a_Normal;
     v_VertPos = u_ModelMatrix * a_Position;
   }`
@@ -393,6 +394,7 @@ function addActionsForHtmlUI(){
   document.getElementById("redSlide").addEventListener('mouseup', function() { g_selectedColor[0] = this.value/100;});
   document.getElementById("greenSlide").addEventListener('mouseup', function() { g_selectedColor[1] = this.value/100;});
   document.getElementById("blueSlide").addEventListener('mouseup', function() { g_selectedColor[2] = this.value/100;});
+  document.getElementById("angleSlide").addEventListener('mousemove', function() { g_globalAngleX = this.value; renderScene();});
  
 
 }
@@ -403,7 +405,7 @@ function main() {
   connectVariablesToGSL();
   addActionsForHtmlUI();
   camera = new Camera();
-  dragon = new Model(gl, "bunny.obj");
+  dragon = new Model(gl, "dragon.obj");
 
   addMouseControl();
   document.onkeydown = keydown;
@@ -926,7 +928,7 @@ function renderScene(){
 
   gl.uniformMatrix4fv(u_ViewMatrix, false, camera.viewMat.elements);
 
- globalRotMat.setRotate(g_globalAngleY, 0, 1, 0);
+ globalRotMat.setRotate(g_globalAngleX, 0, 1, 0);
   gl.uniformMatrix4fv(u_GlobalRotateMatrix, false, globalRotMat.elements);
 
 
@@ -943,25 +945,33 @@ function renderScene(){
   gl.uniform1i(u_spotLightOn, g_spotLightOn);
 
  //drawMap();
+  dragon.color = [.0,.0,1, 1];
+  if (g_normalOn) dragon.textureNum = -3;
+  else dragon.textureNum = -2;
+  dragon.matrix.setIdentity();
+  //dragon.matrix.rotate(180,1,1,1);
+  dragon.matrix.translate(1.2,0,0);
+  dragon.matrix.scale(-.1,-.1,-.1);
+  dragon.matrix.rotate(180,1,0,1);
+  dragon.render();
+
   if (!light) light = new Cube();
   light.color = [g_selectedColor[0],g_selectedColor[1],g_selectedColor[2],1];
   light.matrix.setIdentity();
   light.matrix.translate(g_lightPos[0], g_lightPos[1], g_lightPos[2]);
   light.matrix.scale(-.2,-.2,-.2);
-  //light.matrix.translate(-.5,-.5,-.5);
   light.render();
 
   //if(!dragon) dragon = new Model(gl, "dragon.obj");
-  //dragon.render(gl, gl.program);
 
 
   if (!sp) sp = new Sphere();
   sp.color = [0,0,0,1];
   if(g_normalOn) sp.textureNum = -3;
-  else sp.textureNum = 0;
+  else sp.textureNum = 1;
   //sp.textureNum = -2;
   sp.matrix.setIdentity();
-  sp.matrix.translate(0,-1,-3);
+  sp.matrix.translate(-1.5,-1,-3);
   sp.matrix.scale(1,1,1);
   sp.render();
 
@@ -972,16 +982,18 @@ function renderScene(){
   floor_plane.textureNum = 1;
   floor_plane.matrix.translate(0,1,-3);
   floor_plane.matrix.scale(32,0,32);
-  floor_plane.render();
+  //floor_plane.render();
 
+  //gl.disable(gl.CULL_FACE);
   if (!sky) sky = new Cube();
-  sky.color = [.3,0.3,.3,1];
+  sky.color = [.3,0.3,.7,1];
   sky.matrix.setIdentity();
   if (g_normalOn) sky.textureNum = -3;
   else sky.textureNum = -2;
   sky.matrix.scale(-10, -10,-10);
-  sky.matrix.translate(-.5,-.3,-.7);
+  sky.matrix.translate(-.5,-.2,-.7);
   sky.render();
+ // gl.enable(gl.CULL_FACE);
   
   if (!body) body = new Cube();
   body.color = [0.49, 0.19, 0.0, 1.0];
@@ -1234,4 +1246,6 @@ function renderScene(){
   nose.matrix.rotate(40,0,0,1);
   nose.matrix.scale(.15,.1,.2);
   nose.render();
+
+  //dragon.render(gl, gl.program);
 }

@@ -3,30 +3,28 @@ class Model {
         this.filePath = filePath;
         this.color = [1.0, 1.0, 1.0, 1.0];
         this.matrix = new Matrix4();
+        this.normalMatrix = new Matrix4();
+        this.textureNum = -2;
         this.isFullyLoaded = false;
-        this.getFileContent().then(() => {
-            this.vertexBuffer = gl.createBuffer();
-            this.normalBuffer = gl.createBuffer();
-
-            if (!this.vertexBuffer || !this.normalBuffer){
-                console.log("Failed to create buffers for", this.filePath);
-                return;
-            }
-        })
+        this.gl = gl;
+        this.vertexBuffer = null;
+        this.normalBuffer = null;
+        this.vertexCount = 0;
+        this.getFileContent();
     }
-
+    
     async parseModel(fileContent) {
         const lines = fileContent.split("\n");
         const allVertices = [];
         const allNormals = [];
-
         const unpackedVerts = [];
         const unpackedNormals = [];
-
-        for (let i =0; i < lines.length; i++){
-            const line = lines[i];
-            const tokens = line.split(" ");
-
+        
+        for (let i = 0; i < lines.length; i++){
+            const line = lines[i].trim();
+            if (!line || line[0] === '#') continue;
+            const tokens = line.split(/\s+/);
+            
             if (tokens[0] == 'v'){
                 allVertices.push(parseFloat(tokens[1]), parseFloat(tokens[2]), parseFloat(tokens[3]));
             }
@@ -38,54 +36,56 @@ class Model {
                     const indices = face.split("//");
                     const vertexIndex = (parseInt(indices[0]) - 1) * 3;
                     const normalIndex = (parseInt(indices[1]) - 1) * 3;
-
                     unpackedVerts.push(allVertices[vertexIndex], allVertices[vertexIndex+1], allVertices[vertexIndex+2]);
                     unpackedNormals.push(allNormals[normalIndex], allNormals[normalIndex+1], allNormals[normalIndex+2]);
                 }
             }
         }
-        this.modelData = {vertices: new Float32Array(unpackedVerts), normals: new Float32Array(unpackedNormals)};
+        
+        const vertices = new Float32Array(unpackedVerts);
+        const normals = new Float32Array(unpackedNormals);
+        this.vertexCount = vertices.length / 3;
+        
+        this.vertexBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, vertices, this.gl.STATIC_DRAW);
+        
+        this.normalBuffer = this.gl.createBuffer();
+        this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.normalBuffer);
+        this.gl.bufferData(this.gl.ARRAY_BUFFER, normals, this.gl.STATIC_DRAW);
+        
         this.isFullyLoaded = true;
-        //console.log("all vertices:", allVertices);
-        //console.log("all normals:", allNormals);
     }
+    
+    render() {
+        if (!this.isFullyLoaded) return;
 
-    render(gl, program) {
-       if (!this.isFullyLoaded) return;
-
-
+        gl.uniform1i(u_whichTexture, this.textureNum);
+        
+        gl.disableVertexAttribArray(a_UV);
+        
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.modelData.vertices, gl.STATIC_DRAW);
         gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(a_Position);
-
+        
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, this.modelData.normals, gl.STATIC_DRAW);
         gl.vertexAttribPointer(a_Normal, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(a_Normal);
-
-        gl.uniformMatrix4fv(program.u_ModelMatrix, false, this.matrix.elements);
-        gl.uniform4fv(program.u_FragColor, this.color);
-
-        let normalMatrix = new Matrix4().setInverseOf(this.matrix);
-        normalMatrix.transpose();
-        gl.uniformMatrix4fv(program.u_NormalMatrix, false, normalMatrix.elements);
         
-        //console.log(this.modelData.vertices.length);
-
-        gl.drawArrays(gl.TRIANGLES, 0, this.modelData.vertices.length / 3);
-    
+        gl.uniformMatrix4fv(u_ModelMatrix, false, this.matrix.elements);
+        gl.uniform4fv(u_FragColor, this.color);
+        
+        this.normalMatrix.setInverseOf(this.matrix);
+        this.normalMatrix.transpose();
+        gl.uniformMatrix4fv(u_NormalMatrix, false, this.normalMatrix.elements);
+        
+        gl.drawArrays(gl.TRIANGLES, 0, this.vertexCount);
     }
-
+    
     async getFileContent() {
-        try {
-            const response = await fetch(this.filePath);
-            if (!response.ok) throw new Error(`Could not load file "${this.filePath}". Are you sure the file name/path are correct?`);
-
-            const fileContent = await response.text();
-            this.parseModel(fileContent);
-        } catch (e) {
-            throw new Error(`Something went wrong when loading ${this.filePath}. Error: ${e}`);
-        }
+        const response = await fetch(this.filePath);
+        const fileContent = await response.text();
+        await this.parseModel(fileContent);
     }
 }
+
