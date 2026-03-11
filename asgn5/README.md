@@ -1,0 +1,1 @@
+The camera code is based on the code from the Three.js camera manual page, I also used AI in order to animate objects such as spikes and spheres, I asked how I can make it so the spheres converge on to one spot from which I used that to help me implement the other animations. The special feature is that the eyeball model follows the mouse.
