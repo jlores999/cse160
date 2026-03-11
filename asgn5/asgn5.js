@@ -10,7 +10,6 @@ function main() {
 
 	const canvas = document.querySelector( '#c' );
 	const view1Elem = document.querySelector( '#view1' );
-	//const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
   	const renderer = new THREE.WebGLRenderer({
     	antialias: true,
     	canvas,
@@ -18,13 +17,13 @@ function main() {
   	});
 
 const fov = 75;
+let shiftFlag = false;
 const near = 0.1;
-const far = 100;
-const aspect = 2; // default, gets updated in render loop
+const far = 1000;
+const aspect = 2; 
 const camera = new THREE.PerspectiveCamera( fov, aspect, near, far );
 camera.position.set( 0, 10, 20 );
 
-	const cameraHelper = new THREE.CameraHelper( camera );
 
 	class MinMaxGUIHelper {
 
@@ -55,7 +54,7 @@ camera.position.set( 0, 10, 20 );
 		set max( v ) {
 
 			this.obj[ this.maxProp ] = v;
-			this.min = this.min; // this will call the min setter
+			this.min = this.min;
 
 		}
 
@@ -74,7 +73,6 @@ camera.position.set( 0, 10, 20 );
     }
 
 	const gui = new GUI();
-	//gui.add( camera, 'zoom', 0.01, 1, 0.01 ).listen();
 	const minMaxGUIHelper = new MinMaxGUIHelper( camera, 'near', 'far', 0.1 );
 	gui.add( minMaxGUIHelper, 'min', 0.1, 100, 0.1 ).name( 'near' );
 	gui.add( minMaxGUIHelper, 'max', 0.1, 100, 0.1 ).name( 'far' );
@@ -85,21 +83,15 @@ camera.position.set( 0, 10, 20 );
 
 	const scene = new THREE.Scene();
 	scene.background = new THREE.Color( 'black' );
-	scene.add( cameraHelper );
 
 	{
-
-		const planeSize = 50; //floor blane
-
+		const planeSize = 50;
 		const loader = new THREE.TextureLoader();
-		const texture = loader.load( 'resources/images/wall.jpg' );
-		texture.wrapS = THREE.RepeatWrapping;
-		texture.wrapT = THREE.RepeatWrapping;
-		texture.magFilter = THREE.NearestFilter;
+		const texture = loader.load( 'resources/images/blackhole.jpg' );
+		texture.wrapS = THREE.ClampToEdgeWrapping;
+		texture.wrapT = THREE.ClampToEdgeWrapping;
+		texture.magFilter = THREE.LinearFilter;
 		texture.colorSpace = THREE.SRGBColorSpace;
-		const repeats = planeSize / 2;
-		texture.repeat.set( repeats, repeats );
-
 		const planeGeo = new THREE.PlaneGeometry( planeSize, planeSize );
 		const planeMat = new THREE.MeshStandardMaterial( {
 			map: texture,
@@ -117,7 +109,7 @@ camera.position.set( 0, 10, 20 );
         'resources/images/space1.jpg',
         'resources/images/space2.jpg',
         'resources/images/space3.jpg',
-        'resources/images/space4.jpg', //swap
+        'resources/images/space4.jpg',
         'resources/images/space5.jpg',
       ]);
       scene.background = texture;
@@ -141,36 +133,59 @@ camera.position.set( 0, 10, 20 );
 
 	const cubeSize = 2;
 	const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
-	const cubeMat = new THREE.MeshBasicMaterial({ color: '#8AC', opacity: 0.5, transparent: true, depthWrite: false });
+	const cubeMat = new THREE.MeshBasicMaterial({ color: '#8AC', opacity: 0.3, transparent: true, depthWrite: false });
 
 	const cubes = [];
-
+	const lights = [];
 	for (let i = 0; i < 3; i++) {
 		const cube = new THREE.Mesh(cubeGeo, cubeMat.clone());
 		cube.position.set(0, 10, 0);
 		scene.add(cube);
 		cubes.push(cube);
+
+		const pointLight = new THREE.PointLight(0xffffff, 100, 20);
+  		cube.add(pointLight);  // adding to cube makes it move with it
+  		lights.push(pointLight)
 	}
 
-
-	/*{
+	const spheres = [];
+	let bigSP;
+	{
  
-		const sphereRadius = 2;
+ 		const textureLoader = new THREE.TextureLoader();
+		const sphereTexture = textureLoader.load('resources/images/lol.jpg');
+		const sphereRadius = 1;
 		const sphereWidthDivisions = 32;
 		const sphereHeightDivisions = 16;
 		const sphereGeo = new THREE.SphereGeometry( sphereRadius, sphereWidthDivisions, sphereHeightDivisions );
-		const sphereMat = new THREE.MeshBasicMaterial( { color: '#FFFFFF', } );
-		const sphere = new THREE.Mesh( sphereGeo, sphereMat );
-		sphere.position.set(0, 4, 2.5 );
-		scene.add( sphere );
+		const sphereMat = new THREE.MeshPhongMaterial( { map: sphereTexture, } );
 
-	}*/
+		for (let i = 0; i < 4; i++){
+			const sphere = new THREE.Mesh( sphereGeo, sphereMat );
+			scene.add(sphere);
+			spheres.push(sphere);
+		}
+		spheres[0].position.set(-7,5,-6.4);
+		spheres[1].position.set(-7,5,6.4);
+		spheres[2].position.set(7,5,-6.4);
+		spheres[3].position.set(7,5,6.4);
+
+		const bigSPLoader = new THREE.TextureLoader();
+		const bigSphereTexture = bigSPLoader.load('resources/images/broccoli.jpg'); 
+
+		const sphereMat2 = new THREE.MeshPhongMaterial({ color: 0xffffff, map: bigSphereTexture });
+		const sphereGeo2 = new THREE.SphereGeometry( 7, sphereWidthDivisions, sphereHeightDivisions );	
+		bigSP = new THREE.Mesh(sphereGeo2, sphereMat2);
+		scene.add(bigSP);
+		bigSP.position.set(0,50,0);
+		bigSP.rotation.y = Math.PI;
+	}
 
 	{
 
 		const white = 0xFFFFFF;
-		const ambientLight = new THREE.AmbientLight( 0xFFD700, .75 );  // gold lighting
-		const dirLight = new THREE.DirectionalLight( white, 3 ); 
+		const ambientLight = new THREE.AmbientLight( 0xFFD700, .75 );
+		const dirLight = new THREE.DirectionalLight( 0x004fff, 3 ); 
 		const spotLight = new THREE.SpotLight(white, 100);
 
 		dirLight.position.set( 0, 5, 10 );
@@ -181,11 +196,9 @@ camera.position.set( 0, 10, 20 );
 		ambientLight.position.set(0,0,0);
 		scene.add( ambientLight );
 
-		spotLight.position.set(0,9,0);
+		spotLight.position.set(0,30,0);
 		spotLight.target.position.set(0,0,0);
 		scene.add(spotLight);
-
-
 
 		  // GUI for all three lights
 		const ambientFolder = gui.addFolder('Ambient Light');
@@ -211,49 +224,98 @@ camera.position.set( 0, 10, 20 );
   		const radialSegments = 4; // 4 sides for pyramid shape
 
   		const geometry = new THREE.CylinderGeometry(topRadius, bottomRadius, height, radialSegments);
-  		const material = new THREE.MeshPhongMaterial({ color: 0x000000, flatShading: true });
+  		const material = new THREE.MeshPhongMaterial({ color: 0x000000, });
   		const pyramid = new THREE.Mesh(geometry, material);
 
   		const pillarBRad = 1; //bottom radius for pillars
   		const pillarTRad = 1;//top radius for pillars same size as bottom
   		const pHeight = 4;
   		const pilGeo = new THREE.CylinderGeometry(pillarTRad, pillarTRad, pHeight, radialSegments);
-  		const pilMat = new THREE.MeshPhongMaterial({ color: 0x000000, flatShading: true });
-  		const pillar1 = new THREE.Mesh(pilGeo, pilMat);
+  		const pilMat = new THREE.MeshPhongMaterial({ color: 0x000000,});
 
-  		const pillar2 = new THREE.Mesh(pilGeo, pilMat);
-  		const pillar3 = new THREE.Mesh(pilGeo, pilMat);
-  		const pillar4 = new THREE.Mesh(pilGeo, pilMat);
-
-  // Rotate so base is flat on ground
-  		pyramid.rotation.y = Math.PI / 4; // align edges
+  		const pillars = [];
+		const pillarPositions = [
+		  [7, 2, 6.4],
+		  [-7, 2, -6.4],
+		  [7, 2, -6.4],
+		  [-7, 2, 6.4],
+		];
+		for (let i = 0; i < 4; i++) {
+		  const pillar = new THREE.Mesh(pilGeo, pilMat);
+		  pillar.rotation.y = Math.PI / 4;
+		   pillar.position.set(pillarPositions[i][0], pillarPositions[i][1], pillarPositions[i][2]);
+		  scene.add(pillar);
+		  pillars.push(pillar);
+		}
+  		pyramid.rotation.y = Math.PI / 4; 
   		pyramid.position.set(0,4,0);
   		scene.add(pyramid);
+	}
+	const spikes = [];
+	{
+		const bottom = 1;
+		const top = 0.01;
+		const height = 5;
+		const radialSegments = 4;
+		const geometry = new THREE.CylinderGeometry(top, bottom, height, radialSegments);
+  		const material = new THREE.MeshPhongMaterial({ color: 0x0044ff, flatShading: false });
+  		for (let i = 0; i < 4; i++){
+  			const spike = new THREE.Mesh( geometry, material );
+			scene.add(spike);
+			spikes.push(spike);
+  		}
+  		spikes[0].position.set(10,-2.5,0);
+  		spikes[1].position.set(-10,-2.5,0);
+  		spikes[2].position.set(0,-2.5,10);
+  		spikes[3].position.set(0,-2.5,-10);
 
-  		pillar1.rotation.y = Math.PI / 4; // align edges
-  		pillar1.position.set(7,2,6.4);
-  		scene.add(pillar1);
 
-  		pillar2.rotation.y = Math.PI / 4; // align edges
-  		pillar2.position.set(-7,2,-6.4);
-  		scene.add(pillar2);
+	}
+	const halfSPs = [];
+	{
+		const halfSphereGeo = new THREE.SphereGeometry(
+		5,      
+		32,     
+		16,     
+		0,      
+		Math.PI * 2,  
+		0,      
+		Math.PI / 2   
+		);
+		const halfSphereMat = new THREE.MeshPhongMaterial({ color: 0x800080, side: THREE.DoubleSide });
+		const halfSphere = new THREE.Mesh(halfSphereGeo, halfSphereMat);
+		halfSphere.rotation.x = Math.PI; // flip so cut faces up
+		halfSphere.position.set(0, 17, 0);
+		scene.add(halfSphere);
 
-  		pillar3.rotation.y = Math.PI / 4; // align edges
-  		pillar3.position.set(7,2,-6.4);
-  		scene.add(pillar3);
-
-  		pillar4.rotation.y = Math.PI / 4; // align edges
-  		pillar4.position.set(-7,2,6.4);
-  		scene.add(pillar4);
-
+		const halfSphereGeo2 = new THREE.SphereGeometry(
+		1,      
+		32,     
+		16,     
+		0,      
+		Math.PI * 2, 
+		0,      
+		Math.PI / 2  
+		);
+		for (let i = 0; i < 4; i++){
+			const halfSP = new THREE.Mesh(halfSphereGeo2, halfSphereMat);
+			halfSP.rotation.x = Math.PI;
+			scene.add(halfSP);
+			halfSPs.push(halfSP);
+		}
+		halfSPs[0].position.set(7,4.5,6.4);
+		halfSPs[1].position.set(-7,4.5,6.4);
+		halfSPs[2].position.set(-7,4.5,-6.4);
+		halfSPs[3].position.set(7,4.5,-6.4);
 
 
 	}
 	const mouse = new THREE.Vector2();
-
 	window.addEventListener('mousemove', (e) => {
-  	 mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
- 	 mouse.y = -( e.clientY / window.innerHeight ) * 2 + 1;
+	 if (!shiftFlag){
+  	 	mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+ 	 	mouse.y = -( e.clientY / window.innerHeight ) * 2 + 1;
+ 	}
 	});
 
 	function resizeRendererToDisplaySize( renderer ) {
@@ -262,64 +324,29 @@ camera.position.set( 0, 10, 20 );
 		const width = canvas.clientWidth;
 		const height = canvas.clientHeight;
 		const needResize = canvas.width !== width || canvas.height !== height;
-		if ( needResize ) {
-
+		if (needResize) {
 			renderer.setSize( width, height, false );
-
 		}
-
 		return needResize;
 
 	}
 
-	function setScissorForElement( elem ) {
 
-		const canvasRect = canvas.getBoundingClientRect();
-		const elemRect = elem.getBoundingClientRect();
-
-		// compute a canvas relative rectangle
-		const right = Math.min( elemRect.right, canvasRect.right ) - canvasRect.left;
-		const left = Math.max( 0, elemRect.left - canvasRect.left );
-		const bottom = Math.min( elemRect.bottom, canvasRect.bottom ) - canvasRect.top;
-		const top = Math.max( 0, elemRect.top - canvasRect.top );
-
-		const width = Math.min( canvasRect.width, right - left );
-		const height = Math.min( canvasRect.height, bottom - top );
-
-		// setup the scissor to only render to that part of the canvas
-		const positiveYUpBottom = canvasRect.height - bottom;
-		renderer.setScissor( left, positiveYUpBottom, width, height );
-		renderer.setViewport( left, positiveYUpBottom, width, height );
-
-		// return the aspect
-		return width / height;
-
-	}
+	window.addEventListener('keydown', (e) => {
+		if (e.key == 'w'){
+			console.log("hi");
+			shiftFlag = !shiftFlag;
+		}
+	});
 
 	function render(time) {
 
 		resizeRendererToDisplaySize( renderer );
+		camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		camera.updateProjectionMatrix();
+		renderer.render( scene, camera );
 
-		// turn on the scissor
-		renderer.setScissorTest( true );
-
-		// render the original view
-		{
-
-			const aspect = setScissorForElement( view1Elem );
-
-			// update the camera for this aspect
-camera.aspect = aspect;
-camera.updateProjectionMatrix();
-			cameraHelper.update();
-
-			// don't draw the camera helper in the original view
-			cameraHelper.visible = false;
-
-			renderer.render( scene, camera );
-
-		}
-		time *= 0.001;  // convert time to seconds
+		time *= 0.001;  
  
   		cubes[0].rotation.x = -time;
   		cubes[0].rotation.y = time;
@@ -333,13 +360,59 @@ camera.updateProjectionMatrix();
 		cubes[1].material.color.setHSL( 0.6, 1, Math.sin(time + 1) * 0.2 + 0.5 );
 		cubes[2].material.color.setHSL( 0.6, 1, Math.sin(time + 1) * 0.2 + 0.5 );
 
+		if (shiftFlag){
+			const spTarget = new THREE.Vector3(0, 10, 0);
+			spheres.forEach((sphere) => {
+  			sphere.position.lerp(spTarget, 0.02); 
+			});
+
+			const allConverged = spheres.every(sphere => sphere.position.distanceTo(spTarget) < 0.5);
+  			if (allConverged) {
+  			const spikeTargets = [
+  				new THREE.Vector3(10,2.5,0),
+  				new THREE.Vector3(-10,2.5,0),
+  				new THREE.Vector3(0,2.5,10),
+  				new THREE.Vector3(0,2.5,-10)
+  			];
+  			spikes.forEach((spike, i) =>{
+  				spike.position.lerp(spikeTargets[i], 0.02);			
+  			});
+    		bigSP.position.lerp(new THREE.Vector3(0, 23, 0), 0.01); 
+
+  		}
+
+		}
+		else{
+  			const targets = [
+    		new THREE.Vector3(-7, 5, -6.4),
+    		new THREE.Vector3(-7, 5,  6.4),
+    		new THREE.Vector3( 7, 5, -6.4),
+    		new THREE.Vector3( 7, 5,  6.4),
+  			];
+  			const spikeTargets = [
+  				new THREE.Vector3(10,-2.5,0),
+  				new THREE.Vector3(-10,-2.5,0),
+  				new THREE.Vector3(0,-2.5,10),
+  				new THREE.Vector3(0,-2.5,-10)
+  			];
+  			spheres.forEach((sphere, i) => {
+    		sphere.position.lerp(targets[i], 0.02);
+  			});
+  			spikes.forEach((spike, i) =>{
+  				spike.position.lerp(spikeTargets[i], 0.02);			
+  			});
+  			bigSP.position.lerp(new THREE.Vector3(0, 50, 0), 0.02);
+		}
+
   		if (eyeball) {
   			const target = new THREE.Vector3(mouse.x * 10, mouse.y * 10, 10);
   			eyeball.lookAt(target);
+		} 
+		if (eyeball && shiftFlag){
+			eyeball.rotation.x = time * 10;
+			eyeball.rotation.y = time * 10;
+			eyeball.rotation.z = time * 10;
 		}
- 
-  		//renderer.render(scene, camera);
- 
   		requestAnimationFrame(render);
 	}
 
